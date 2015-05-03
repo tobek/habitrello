@@ -198,8 +198,8 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 		else:
 			board_list.close()
 
-	#processDailies(trello_dailies_list, dailies, board, new_board, api)
-	#processHabits(trello_habits_list, habits, board, new_board, api)
+	processDailies(trello_dailies_list, dailies, board, new_board, api)
+	processHabits(trello_habits_list, habits, board, new_board, api)
 	processTodos(trello_todos_list, todos, board, new_board, api, todos_completed)
 
 main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret)
