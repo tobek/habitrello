@@ -3,7 +3,7 @@ from trello import *
 from trello.util import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret
 
-def processDailies(trello_dailies_list, dailies, board, new_board, api):
+def processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed):
 	# Dailies
 	trello_dailies_dict = {}
 	# If we didn't find the list, we have to make a new one
@@ -26,7 +26,9 @@ def processDailies(trello_dailies_list, dailies, board, new_board, api):
 			trello_dailies_dict[trello_daily.description] = trello_daily
 			if trello_daily.description in dailies:
 				print "Daily " + trello_daily.name + " was not done today!"
-			else:
+			elif trello_daily.description in dailies_completed:
+				print "Daily " + trello_daily.name + " was done!"
+			elif trello_daily.description not in dailies_completed:
 				new_daily = api.create_task(HabitAPI.TYPE_DAILY, trello_daily.name)
 				print "Daily " + trello_daily.name + " was created!"
 				dailies[new_daily["id"]] = new_daily
@@ -131,13 +133,17 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 	# of habits, dailies, and todos
 	habits = {}
 	dailies = {}
+	dailies_completed = {}
 	todos = {}
 	todos_completed = {}
 	for task in tasks:
 		if task["type"] == HabitAPI.TYPE_HABIT:
 			habits[task["id"]] = task
 		elif task["type"] == HabitAPI.TYPE_DAILY:
-			dailies[task["id"]] = task
+			if task["completed"] == True:
+				dailies_completed[task["id"]] = task
+			else:
+				dailies[task["id"]] = task
 		elif task["type"] == HabitAPI.TYPE_TODO:
 			if task["completed"] == True:
 				todos_completed[task["id"]] = task
@@ -198,7 +204,7 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 		else:
 			board_list.close()
 
-	processDailies(trello_dailies_list, dailies, board, new_board, api)
+	processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed)
 	processHabits(trello_habits_list, habits, board, new_board, api)
 	processTodos(trello_todos_list, todos, board, new_board, api, todos_completed)
 
