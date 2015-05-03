@@ -4,7 +4,13 @@ from trello import *
 from trello.util import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret
 
-def processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed):
+def maintain_tasks(tasks, trello_tasks_dict, trello_tasks_list, completeFunc):
+	for task_id,task in tasks.items():
+		if task_id not in trello_tasks_dict:
+			completeFunc(task, api)
+		trello_tasks_list.add_card(task["text"], task_id)
+
+def process_dailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed):
 	# Dailies
 	trello_dailies_dict = {}
 	# If we didn't find the list, we have to make a new one
@@ -20,7 +26,7 @@ def processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_
 			trello_dailies_list.open()
 			if not new_board:
 				for dailiy_id,daily in dailies.items():
-					completeDaily(daily, api)
+					complete_daily(daily, api)
 
 		# Now, we iterate through all of the remaining cards and remove them
 		for trello_daily in trello_dailies:
@@ -37,17 +43,14 @@ def processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_
 			trello_daily.delete()
 
 	# then we add in the new cards
-	for daily_id,daily in dailies.items():
-		if daily_id not in trello_dailies_dict:
-			completeDaily(daily, api)
-		trello_dailies_list.add_card(daily["text"], daily_id)
+	maintain_tasks(dailies, trello_dailies_dict, trello_dailies_list, complete_daily)
 
-def completeDaily(daily, api):
+def complete_daily(daily, api):
 	daily["completed"] = True
 	print "Daily " + daily["text"] + " was finished!"
 	api.update_task(daily["id"], daily)
 
-def processHabits(trello_habits_list, habits, board, new_board, api):
+def process_habits(trello_habits_list, habits, board, new_board, api):
 	# Habits
 	trello_habits_dict = {}
 	if not trello_habits_list:
@@ -59,12 +62,12 @@ def processHabits(trello_habits_list, habits, board, new_board, api):
 			trello_habits_list.open()
 			if not new_board:
 				for habit_id,habit in habits.items():
-					upArrowHabit(habit)
+					up_arrow_habit(habit)
 
 		for trello_habit in trello_habits:
 			trello_habits_dict[trello_habit.description] = trello_habit
 			if trello_habit.description in habits:
-				downArrowHabit(habits[trello_habit.description], api)
+				down_arrow_habit(habits[trello_habit.description], api)
 			else:
 				new_habit = api.create_habit(trello_habit.name, False, True)
 				print "Habit " + trello_habit.name + " was created!"
@@ -72,21 +75,18 @@ def processHabits(trello_habits_list, habits, board, new_board, api):
 				trello_habits_dict[new_habit["id"]] = new_habit
 			trello_habit.delete()
 
-	for habit_id,habit in habits.items():
-		if habit_id not in trello_habits_dict:
-			upArrowHabit(habit, api)
-		trello_habits_list.add_card(habit["text"], habit_id)
+	maintain_tasks(habits, trello_habits_dict, trello_habits_list, up_arrow_habit)
 
-def upArrowHabit(habit, api):
+def up_arrow_habit(habit, api):
 		api.perform_task(habit["id"], HabitAPI.DIRECTION_UP)
 		print "Habit " + habit["text"] + " was finished!"
 
-def downArrowHabit(habit, api):
+def down_arrow_habit(habit, api):
 		api.perform_task(habit["id"], HabitAPI.DIRECTION_DOWN)
 		print "Habit " + habit["text"] + " was not finished!"
 
 
-def processTodos(trello_todos_list, todos, board, new_board, api, todos_completed):
+def process_todos(trello_todos_list, todos, board, new_board, api, todos_completed):
 	# Todos
 	trello_todos_dict = {}
 	if not trello_todos_list:
@@ -97,7 +97,7 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 			trello_todos_list.open()
 			if not new_board:
 				for todo_id,todo in todos.items():
-					completeTodo(todo, api)
+					complete_todo(todo, api)
 
 		for trello_todo in trello_todos:
 			trello_todos_dict[trello_todo.description] = trello_todo
@@ -114,16 +114,16 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 
 	for todo_id,todo in todos.items():
 		if todo_id not in trello_todos_dict:
-			completeTodo(todo, api)
+			complete_todo(todo, api)
 		else:
 			trello_todos_list.add_card(todo["text"], todo_id)
 
-def completeTodo(todo, api):
+def complete_todo(todo, api):
 	todo["completed"] = True
 	print "Todo " + todo["text"] + " was finished!"
 	api.update_task(todo["id"], todo)
 
-def openTodo(todo, api):
+def open_todo(todo, api):
 	todo["completed"] = False
 	api.update_task(todo["id"], todo)
 
@@ -131,7 +131,7 @@ def add_labels(habitrello_board):
 	habitrello_board.add_label("Up", "green")
 	habitrello_board.add_label("Down", "red")
 
-def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret, process_todos=True, process_dailies=True, process_habits=True):
+def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret, process_todos_bool=True, process_dailies_bool=True, process_habits_bool=True):
 	# Get the tasks for the user in HabitRPG
 	api = HabitAPI(habit_uuid, habit_api_key)
 	tasks = api.tasks()
@@ -188,9 +188,6 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 	# and assume that the user had finished all of the dailies, habits, and tasks
 	elif habitrello_board.closed:
 		habitrello_board.open()
-		up_dailies = True
-		up_todos = True
-		up_dailies = True
 
 	trello_habits_list = None
 	trello_todos_list = None
@@ -210,12 +207,12 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 		# Finally, we close any lists that aren't related to Habit RPG
 		else:
 			board_list.close()
-	if process_dailies:
-		processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed)
-	if process_habits:
-		processHabits(trello_habits_list, habits, board, new_board, api)
-	if process_todos:
-		processTodos(trello_todos_list, todos, board, new_board, api, todos_completed)
+	if process_dailies_bool:
+		process_dailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed)
+	if process_habits_bool:
+		process_habits(trello_habits_list, habits, board, new_board, api)
+	if process_todos_bool:
+		process_todos(trello_todos_list, todos, board, new_board, api, todos_completed)
 
 parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
 parser.add_argument('--process_todos', dest='process_todos', action='store_true', help='Indicate to process the Todos')
