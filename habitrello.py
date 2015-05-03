@@ -1,3 +1,4 @@
+import argparse
 from habitrpg import HabitAPI
 from trello import *
 from trello.util import *
@@ -114,7 +115,8 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 	for todo_id,todo in todos.items():
 		if todo_id not in trello_todos_dict:
 			completeTodo(todo, api)
-		trello_todos_list.add_card(todo["text"], todo_id)
+		else:
+			trello_todos_list.add_card(todo["text"], todo_id)
 
 def completeTodo(todo, api):
 	todo["completed"] = True
@@ -125,7 +127,7 @@ def openTodo(todo, api):
 	todo["completed"] = False
 	api.update_task(todo["id"], todo)
 
-def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret):
+def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret, process_todos=True, process_dailies=True, process_habits=True):
 	# Get the tasks for the user in HabitRPG
 	api = HabitAPI(habit_uuid, habit_api_key)
 	tasks = api.tasks()
@@ -203,9 +205,16 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 		# Finally, we close any lists that aren't related to Habit RPG
 		else:
 			board_list.close()
+	if process_dailies:
+		processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed)
+	if process_habits:
+		processHabits(trello_habits_list, habits, board, new_board, api)
+	if process_todos:
+		processTodos(trello_todos_list, todos, board, new_board, api, todos_completed)
 
-	processDailies(trello_dailies_list, dailies, board, new_board, api, dailies_completed)
-	processHabits(trello_habits_list, habits, board, new_board, api)
-	processTodos(trello_todos_list, todos, board, new_board, api, todos_completed)
-
-main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret)
+parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
+parser.add_argument('--process_todos', dest='process_todos', action='store_true', help='Indicate to process the Todos')
+parser.add_argument('--process_dailies', dest='process_dailies', action='store_true', help='Indicate to process the Dailies')
+parser.add_argument('--process_habits', dest='process_habits', action='store_true', help='Indicate to process the Habits')
+args = parser.parse_args()
+main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret, args.process_todos, args.process_dailies, args.process_habits)
