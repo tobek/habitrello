@@ -52,7 +52,7 @@ class HabitAPI(object):
     def create_habit(self, text, up = True, down = True):
         data = {
             'type': TYPE_HABIT,
-            'text': text
+            'text': text,
             'completed' : 'false',
             'up': 'true' if up else 'false',
             'down': 'true' if down else 'false'
