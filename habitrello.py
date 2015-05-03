@@ -30,6 +30,7 @@ def processDailies(trello_dailies_list, dailies, board, new_board, api):
 				new_daily = api.create_task(HabitAPI.TYPE_DAILY, trello_daily.name)
 				print "Daily " + trello_daily.name + " was created!"
 				dailies[new_daily["id"]] = new_daily
+				trello_dailies_dict[new_daily["id"]] = new_daily
 			trello_daily.delete()
 
 	# then we add in the new cards
@@ -65,6 +66,7 @@ def processHabits(trello_habits_list, habits, board, new_board, api):
 				new_habit = api.create_task(HabitAPI.TYPE_HABIT, trello_habit.name)
 				print "Habit " + trello_habit.name + " was created!"
 				habits[new_habit["id"]] = new_habit
+				trello_habits_dict[new_habit["id"]] = new_habit
 			trello_habit.delete()
 
 	for habit_id,habit in habits.items():
@@ -98,6 +100,9 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 			trello_todos_dict[trello_todo.description] = trello_todo
 			# If we have a task in Trello not in HabitRPG, it means they added it in Trello
 			if trello_todo.description not in todos and trello_todo.description not in todos_completed:
+				print trello_todo
+				print todos_completed
+				print todos
 				new_task = api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
 				print "Todo " + trello_todo.name + " was created!"
 				todos[new_task["id"]] = new_task
@@ -115,7 +120,10 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 def completeTodo(todo, api):
 	todo["completed"] = True
 	print "Todo " + todo["text"] + " was finished!"
-	print todo
+	print api.update_task(todo["id"], todo)
+
+def openTodo(todo, api):
+	todo["completed"] = False
 	print api.update_task(todo["id"], todo)
 
 def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret):
