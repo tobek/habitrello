@@ -42,7 +42,7 @@ def processDailies(trello_dailies_list, dailies, board, new_board, api):
 def completeDaily(daily, api):
 	daily["completed"] = True
 	print "Daily " + daily["text"] + " was finished!"
-	print api.update_task(daily["id"], daily)
+	api.update_task(daily["id"], daily)
 
 def processHabits(trello_habits_list, habits, board, new_board, api):
 	# Habits
@@ -79,8 +79,8 @@ def upArrowHabit(habit, api):
 		print "Habit " + habit["text"] + " was finished!"
 
 def downArrowHabit(habit, api):
-		print "Habit " + habit["text"] + " was not finished!"
 		api.perform_task(habit["id"], HabitAPI.DIRECTION_DOWN)
+		print "Habit " + habit["text"] + " was not finished!"
 
 
 def processTodos(trello_todos_list, todos, board, new_board, api, todos_completed):
@@ -117,11 +117,11 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 def completeTodo(todo, api):
 	todo["completed"] = True
 	print "Todo " + todo["text"] + " was finished!"
-	print api.update_task(todo["id"], todo)
+	api.update_task(todo["id"], todo)
 
 def openTodo(todo, api):
 	todo["completed"] = False
-	print api.update_task(todo["id"], todo)
+	api.update_task(todo["id"], todo)
 
 def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret):
 	# Get the tasks for the user in HabitRPG
