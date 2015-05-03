@@ -5,5 +5,5 @@ As a user of HabitRPG and Trello, I long for the ability to "sync" the tasks bet
 
 Credits
 =======
-py-trello - https://github.com/sarumont/py-trello
-py-habit - https://github.com/elssar/pyhabit
+py-trello - https://github.com/sarumont/py-trello  
+py-habit - https://github.com/elssar/pyhabit  
