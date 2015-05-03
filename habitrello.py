@@ -100,9 +100,6 @@ def processTodos(trello_todos_list, todos, board, new_board, api, todos_complete
 			trello_todos_dict[trello_todo.description] = trello_todo
 			# If we have a task in Trello not in HabitRPG, it means they added it in Trello
 			if trello_todo.description not in todos and trello_todo.description not in todos_completed:
-				print trello_todo
-				print todos_completed
-				print todos
 				new_task = api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
 				print "Todo " + trello_todo.name + " was created!"
 				todos[new_task["id"]] = new_task
