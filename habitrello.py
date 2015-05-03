@@ -1,5 +1,5 @@
 import argparse
-from habitrpg import HabitAPI
+from pyhabit import HabitAPI
 from trello import *
 from trello.util import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret
