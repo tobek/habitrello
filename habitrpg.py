@@ -47,7 +47,7 @@ class HabitAPI(object):
             'note': note
         }
 
-        return self.request("post", "user/task/%s" % task_id, data=data).json()
+        return self.request("post", "user/task/", data=data).json()
 
     def update_task(self, task_id, text):
         return self.request("put", "user/task/%s" % task_id, data=text).json()
@@ -57,4 +57,4 @@ class HabitAPI(object):
         data = json.dumps({'apiToken': self.api_key})
         headers={'Content-Type': 'application/json'}
 
-        return self.request("post", url, data=data, headers=headers).json()
+        return self.request("post", url, data=data, headers=headers)
