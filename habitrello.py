@@ -127,6 +127,10 @@ def openTodo(todo, api):
 	todo["completed"] = False
 	api.update_task(todo["id"], todo)
 
+def add_labels(habitrello_board):
+	habitrello_board.add_label("Up", "green")
+	habitrello_board.add_label("Down", "red")
+
 def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret, process_todos=True, process_dailies=True, process_habits=True):
 	# Get the tasks for the user in HabitRPG
 	api = HabitAPI(habit_uuid, habit_api_key)
@@ -178,6 +182,7 @@ def main(habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_to
 	# if we don't have a Habit RPG borad, then we have to make a new one
 	if not habitrello_board:
 		habitrello_board = client.add_board('Habit RPG')
+		add_labels(habitrello_board)
 		new_board = True
 	# if the board we found was closed, then we open it
 	# and assume that the user had finished all of the dailies, habits, and tasks

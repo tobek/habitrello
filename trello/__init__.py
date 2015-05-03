@@ -397,6 +397,20 @@ class Board(object):
             post_args={'name': name, 'idBoard': self.id}, )
         return List.from_json(board=self, json_obj=obj)
 
+    def add_label(self, name, color):
+        """
+            Add a label to this board
+            :name: name of the label
+            :color: the color, either green, yellow, orange
+                red, purple, blue, sky, lime, pink, or black
+            :return: the label
+        """
+        obj = self.client.fetch_json(
+            '/labels',
+            http_method='POST',
+            post_args={'name':name, 'idBoard': self.id, 'color': color},)
+        return Label.from_json(board=self, json_obj=obj)
+
     def all_cards(self):
         """Returns all cards on this board"""
         filters = {
@@ -616,6 +630,20 @@ class Card(object):
         self.desc = value
 
     @property
+    def idLabels(self):
+        return self.label_ids
+
+    @idLabels.setter
+    def idLabels(self, values):
+        self.label_ids = values
+
+    @property
+    def list_labels(self):
+        if self.labels:
+            return self.labels
+        return None
+
+    @property
     def comments(self):
         """
         Lazily loads and returns the comments
@@ -660,6 +688,8 @@ class Card(object):
         card.closed = json_obj['closed']
         card.url = json_obj['url']
         card.member_ids = json_obj['idMembers']
+        card.idLabels = json_obj['idLabels']
+        card.labels = json_obj['labels']
         return card
 
     def __repr__(self):
@@ -682,6 +712,7 @@ class Card(object):
         self.idShort = json_obj['idShort']
         self.idList = json_obj['idList']
         self.idBoard = json_obj['idBoard']
+        self.idLabels = json_obj['idLabels']
         self.labels = json_obj['labels']
         self.badges = json_obj['badges']
         # For consistency, due date is in YYYY-MM-DD format
@@ -901,6 +932,37 @@ class Card(object):
             files=files,
             post_args=kwargs )
 
+class Label(object):
+    """
+    Class representing a Trello Label.
+    """
+    def __init__(self, client, label_id, name, color=""):
+        self.client = client
+        self.id = label_id
+        self.name = name
+        self.color = color
+
+    @classmethod
+    def from_json(cls, board, json_obj):
+        """
+        Deserialize the label json object to a Label object
+
+        :trello_client: the trello client
+        :json_obj: the label json object
+        """
+        label = Label(board.client, label_id=json_obj['id'], name=json_obj['name'].encode('utf-8'), color=json_obj['color'])
+        return label
+
+    def __repr__(self):
+        return '<Label %s>' % self.name
+
+    def fetch(self):
+        """Fetch all attributes for this label"""
+        json_obj = self.client.fetch_json(
+            '/labels/' + self.id)
+        self.name = json_obj['name'].encode('utf-8')
+        self.color = json_obj['color']
+        return self
 
 class Member(object):
     """
