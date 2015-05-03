@@ -66,7 +66,7 @@ def processHabits(trello_habits_list, habits, board, new_board, api):
 			if trello_habit.description in habits:
 				downArrowHabit(habits[trello_habit.description], api)
 			else:
-				new_habit = api.create_task(HabitAPI.TYPE_HABIT, trello_habit.name)
+				new_habit = api.create_habit(trello_habit.name, False, True)
 				print "Habit " + trello_habit.name + " was created!"
 				habits[new_habit["id"]] = new_habit
 				trello_habits_dict[new_habit["id"]] = new_habit
