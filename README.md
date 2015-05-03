@@ -17,6 +17,8 @@ Ideally, you would set up a timed task such as a Cron job to run just before mid
 HabiTrello should create the board, lists, and populate them with your dailies, habits, and todos automatically
 for you.
 
+I would like to warn that this is largely still a Work In Progress. If you value your HabitRPG avatar, I would recommend against using this in its present state.
+
 Credits
 =======
 py-trello - https://github.com/sarumont/py-trello  
