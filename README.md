@@ -6,8 +6,8 @@ As a user of HabitRPG and Trello, I long for the ability to "sync" the tasks bet
 Instructions
 ============
 
-To make sure all of the requirements are satisfied, run
-   sudo pip install -r requirements.txtx
+To make sure all of the requirements are satisfied, run  
+	sudo pip install -r requirements.txt
 
 To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://habitrpg.com/#/options/settings/api). Place them in the corresponding variables in keys.py.
 
