@@ -39,7 +39,8 @@ class HabiTrello(object):
 				self.dailies_list.open()
 				if not self.new_board:
 					for dailiy_id,daily in self.dailies.items():
-						self.complete_daily(daily)
+						print "Daily " + daily["text"] + " was finished!"
+						self.complete_task(daily)
 
 			# Now, we iterate through all of the remaining cards and remove them
 			for daily in self.trello_dailies:
@@ -56,17 +57,17 @@ class HabiTrello(object):
 
 		self.update_dailies()
 
-	def complete_daily(self, daily):
-		daily["completed"] = True
-		print "Daily " + daily["text"] + " was finished!"
-		self.api.update_task(daily["id"], daily)
+	def complete_task(self, task):
+		task["completed"] = True
+		self.api.update_task(task["id"], task)
 
 	def update_dailies(self):
 		self.dailies_list.archive_all_cards()
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
 			if daily_id not in self.dailies_dict:
-				self.complete_daily(daily)
+				print "Daily " + daily["text"] + " was finished!"
+				self.complete_task(daily)
 			tomorrow = date.today() + timedelta(days=1)
 			midnight = datetime.combine(tomorrow, time())
 			card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
@@ -138,7 +139,8 @@ class HabiTrello(object):
 				self.todos_list.open()
 				if not self/new_board:
 					for todo_id,todo in self.todos.items():
-						self.complete_todo(todo)
+						print "Todo " + todo["text"] + " was finished!"
+						self.complete_task(todo)
 
 			for trello_todo in self.trello_todos:
 				self.todos_dict[trello_todo.description] = trello_todo
@@ -153,11 +155,6 @@ class HabiTrello(object):
 
 		self.update_todos()
 
-	def complete_todo(self, todo):
-		todo["completed"] = True
-		print "Todo " + todo["text"] + " was finished!"
-		self.api.update_task(todo["id"], todo)
-
 	def open_todo(self, todo):
 		todo["completed"] = False
 		self.api.update_task(todo["id"], todo)
@@ -167,7 +164,8 @@ class HabiTrello(object):
 
 		for todo_id,todo in self.todos.items():
 			if todo_id not in self.todos_dict:
-				self.complete_todo(todo)
+				print "Todo " + todo["text"] + " was finished!"
+				self.complete_task(todo)
 			else:
 				self.todos_list.add_card(todo["text"], todo_id)
 
