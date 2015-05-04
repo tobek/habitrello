@@ -12,6 +12,9 @@ class HabiTrello(object):
 		self.client = client
 		self.tasks = api.tasks()
 		self.labels = {}
+		self.habits_list = None
+		self.todos_list = None
+		self.dailies_list = None
 
 	def process_dailies(self):
 		# Dailies
@@ -192,6 +195,22 @@ class HabiTrello(object):
 		elif self.board.closed:
 			self.board.open()
 
+	def setup_lists(self):
+		# Now we look in the Habit RPG board for all of the lists
+		for board_list in self.board.get_lists('all'):
+			# if we find the Dailies list
+			if board_list.name == 'Dailies':
+				# We grab the object
+				self.dailies_list = board_list
+			# Rinse and repeat for Todos and Habits
+			elif board_list.name == 'Todos':
+				self.todos_list = board_list
+			elif board_list.name == 'Habits':
+				self.habits_list = board_list
+			# Finally, we close any lists that aren't related to Habit RPG
+			else:
+				board_list.close()
+
 	def get_labels(self):
 		labels = self.board.get_labels()
 		for label in labels:
@@ -221,28 +240,10 @@ class HabiTrello(object):
 
 	def main(self, process_todos_bool=True, process_dailies_bool=True, process_habits_bool=True):
 		self.process_tasks()
-
 		self.setup_board()
+		self.setup_lists()
 		self.get_labels()
 
-		self.habits_list = None
-		self.todos_list = None
-		self.dailies_list = None
-
-		# Now we look in the Habit RPG board for all of the lists
-		for board_list in self.board.get_lists('all'):
-			# if we find the Dailies list
-			if board_list.name == 'Dailies':
-				# We grab the object
-				self.dailies_list = board_list
-			# Rinse and repeat for Todos and Habits
-			elif board_list.name == 'Todos':
-				self.todos_list = board_list
-			elif board_list.name == 'Habits':
-				self.habits_list = board_list
-			# Finally, we close any lists that aren't related to Habit RPG
-			else:
-				board_list.close()
 		if process_dailies_bool:
 			self.process_dailies()
 		if process_habits_bool:
