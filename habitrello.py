@@ -87,7 +87,7 @@ class HabiTrello(object):
 						self.up_arrow_habit(habit)
 
 			for trello_habit in self.trello_habits:
-				trello_habit.fetch()
+				trello_habit.fetch(eager=True)
 				self.habits_dict[trello_habit.description] = trello_habit
 				if trello_habit.description in self.habits:
 					for checklist_item in trello_habit.checklists[0].items:
