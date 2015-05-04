@@ -111,7 +111,7 @@ class HabiTrello(object):
 							down = True
 						else:
 							down = False
-					new_habit = self.api.create_habit(trello_habit.name, False, True)
+					new_habit = self.api.create_habit(trello_habit.name, up, down)
 					print "Habit " + trello_habit.name + " was created!"
 					self.habits[new_habit["id"]] = new_habit
 					self.habits_dict[new_habit["id"]] = new_habit
