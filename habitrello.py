@@ -12,20 +12,6 @@ class HabiTrello(object):
 		self.tasks = api.tasks()
 		self.labels = {}
 
-	def maintain_tasks(self, tasks, trello_tasks_dict, trello_tasks_list, complete_func):
-		for task_id,task in tasks.items():
-			if task_id not in trello_tasks_dict:
-				complete_func(task)
-			labels = []
-			if task["up"]:
-				up_label = self.get_label_for("Up")
-			if task["down"]:
-				down_label = self.get_label_for("Down")
-			card = trello_tasks_list.add_card(task["text"], task_id)
-			for label in labels:
-				if label:
-					card.add_label(label)
-
 	def process_dailies(self):
 		# Dailies
 		self.dailies_dict = {}
@@ -56,10 +42,13 @@ class HabiTrello(object):
 					print "Daily " + daily.name + " was created!"
 					self.dailies[new_daily["id"]] = new_daily
 					self.dailies_dict[new_daily["id"]] = new_daily
+				# remove each card
 				daily.delete()
 
-		# then we add in the new cards
-		self.maintain_tasks(self.dailies, self.dailies_dict, self.dailies_list, self.complete_daily)
+		# then we add in the cards again
+		for dailies_id,dailies in self.dailies.items():
+			if dailies_id not in self.dailies_dict:
+				self.complete_daily(daily)
 
 	def complete_daily(self, daily):
 		daily["completed"] = True
@@ -85,13 +74,31 @@ class HabiTrello(object):
 				if trello_habit.description in self.habits:
 					self.down_arrow_habit(self.habits[trello_habit.description])
 				else:
+					up = False
+					down = True
+					for label in trello_habit.labels:
+						if label.name == "Up":
+							up = True
+						else:
+							up = False
+						if label.name == "Down":
+							down = True
+						else:
+							down = False
 					new_habit = self.api.create_habit(trello_habit.name, False, True)
 					print "Habit " + trello_habit.name + " was created!"
 					self.habits[new_habit["id"]] = new_habit
 					self.habits_dict[new_habit["id"]] = new_habit
 				trello_habit.delete()
 
-		self.maintain_tasks(self.habits, self.habits_dict, self.habits_list, self.up_arrow_habit)
+		for habit_id,habit in self.habits.items():
+			if habit_id not in self.habits_dict and habit["up"]:
+				self.up_arrow_habit(habit)
+			card = self.habits_list.add_card(habit["text"], habit_id)
+			if habit["up"]:
+				card.add_label(self.get_label_for("Up"))
+			if habit["down"]:
+				card.add_label(self.get_label_for("Down"))
 
 	def up_arrow_habit(self, habit):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_UP)
