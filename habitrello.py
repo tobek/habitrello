@@ -1,4 +1,5 @@
 import argparse
+from datetime import date, time, timedelta
 from pyhabit import HabitAPI
 from trello import *
 from trello.util import *
@@ -37,23 +38,28 @@ class HabiTrello(object):
 					print "Daily " + daily.name + " was not done today!"
 				elif daily.description in self.dailies_completed:
 					print "Daily " + daily.name + " was done!"
-				elif daily.description not in self.dailies_completed:
+				else:
 					new_daily = self.api.create_task(HabitAPI.TYPE_DAILY, daily.name)
 					print "Daily " + daily.name + " was created!"
 					self.dailies[new_daily["id"]] = new_daily
 					self.dailies_dict[new_daily["id"]] = new_daily
-				# remove each card
-				daily.delete()
 
-		# then we add in the cards again
-		for dailies_id,dailies in self.dailies.items():
-			if dailies_id not in self.dailies_dict:
-				self.complete_daily(daily)
+		self.update_dailies()
 
 	def complete_daily(self, daily):
 		daily["completed"] = True
 		print "Daily " + daily["text"] + " was finished!"
 		self.api.update_task(daily["id"], daily)
+
+	def update_dailies(self):
+		self.dailies_list.archive_all_cards()
+		# then we add in the cards again
+		for daily_id,daily in self.dailies.items():
+			if daily_id not in self.dailies_dict:
+				self.complete_daily(daily)
+			tomorrow = date.today() + timedelta(days=1)
+			midnight = datetime.combine(tomorrow, time())
+			card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
 
 	def process_habits(self):
 		# Habits
@@ -89,16 +95,8 @@ class HabiTrello(object):
 					print "Habit " + trello_habit.name + " was created!"
 					self.habits[new_habit["id"]] = new_habit
 					self.habits_dict[new_habit["id"]] = new_habit
-				trello_habit.delete()
 
-		for habit_id,habit in self.habits.items():
-			if habit_id not in self.habits_dict and habit["up"]:
-				self.up_arrow_habit(habit)
-			card = self.habits_list.add_card(habit["text"], habit_id)
-			if habit["up"]:
-				card.add_label(self.get_label_for("Up"))
-			if habit["down"]:
-				card.add_label(self.get_label_for("Down"))
+		self.update_habits()
 
 	def up_arrow_habit(self, habit):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_UP)
@@ -108,6 +106,18 @@ class HabiTrello(object):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_DOWN)
 			print "Habit " + habit["text"] + " was not finished!"
 
+	def update_habits(self):
+		self.habits_list.archive_all_cards()
+
+		for habit_id,habit in self.habits.items():
+			if habit_id not in self.habits_dict and habit["up"]:
+				self.up_arrow_habit(habit)
+			labels = []
+			if habit["up"]:
+				labels.append(self.get_label_for("Up"))
+			if habit["down"]:
+				labels.append(self.get_label_for("Down"))
+			card = self.habits_list.add_card(habit["text"], habit_id, labels)
 
 	def process_todos(self):
 		# Todos
@@ -130,16 +140,10 @@ class HabiTrello(object):
 					print "Todo " + trello_todo.name + " was created!"
 					self.todos[new_task["id"]] = new_task
 					self.todos_dict[new_task["id"]] = new_task
-
 				else:
 					print "Todo " + trello_todo.name + " was not done today!"
-				trello_todo.delete()
 
-		for todo_id,todo in self.todos.items():
-			if todo_id not in self.todos_dict:
-				self.complete_todo(todo)
-			else:
-				self.todos_list.add_card(todo["text"], todo_id)
+		self.update_todos()
 
 	def complete_todo(self, todo):
 		todo["completed"] = True
@@ -149,6 +153,15 @@ class HabiTrello(object):
 	def open_todo(self, todo):
 		todo["completed"] = False
 		self.api.update_task(todo["id"], todo)
+
+	def update_todos(self):
+		self.todos_list.archive_all_cards()
+
+		for todo_id,todo in self.todos.items():
+			if todo_id not in self.todos_dict:
+				self.complete_todo(todo)
+			else:
+				self.todos_list.add_card(todo["text"], todo_id)
 
 	def add_labels(self, habitrello_board):
 		self.labels["Up"] = self.board.add_label("Up", "green")
