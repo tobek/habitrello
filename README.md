@@ -7,7 +7,7 @@ Instructions
 ============
 
 To make sure all of the requirements are satisfied, run
-  sudo pip install -r requirements.txtx
+   sudo pip install -r requirements.txtx
 
 To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://habitrpg.com/#/options/settings/api). Place them in the corresponding variables in keys.py.
 
