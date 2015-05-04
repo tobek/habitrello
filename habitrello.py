@@ -15,10 +15,17 @@ class HabiTrello(object):
 		self.habits_list = None
 		self.todos_list = None
 		self.dailies_list = None
+		self.habits = {}
+		self.dailies = {}
+		self.dailies_completed = {}
+		self.todos = {}
+		self.todos_completed = {}
+		self.dailies_dict = {}
+		self.habits_dict = {}
+		self.todos_dict = {}
 
 	def process_dailies(self):
 		# Dailies
-		self.dailies_dict = {}
 		# If we didn't find the list, we have to make a new one
 		# and again assume all the Dailies were finished
 		if not self.dailies_list:
@@ -66,7 +73,6 @@ class HabiTrello(object):
 
 	def process_habits(self):
 		# Habits
-		self.habits_dict = {}
 		if not self.habits_list:
 			self.habits_list = self.board.add_list('Habits')
 		else:
@@ -124,7 +130,6 @@ class HabiTrello(object):
 
 	def process_todos(self):
 		# Todos
-		self.todos_dict = {}
 		if not self.todos_list:
 			self.todos_list = self.board.add_list('Todos')
 		else:
@@ -219,11 +224,6 @@ class HabiTrello(object):
 	def process_tasks(self):
 		# Populate the separate lists
 		# of habits, dailies, and todos
-		self.habits = {}
-		self.dailies = {}
-		self.dailies_completed = {}
-		self.todos = {}
-		self.todos_completed = {}
 		for task in self.tasks:
 			if task["type"] == HabitAPI.TYPE_HABIT:
 				self.habits[task["id"]] = task
