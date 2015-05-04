@@ -12,17 +12,17 @@ class HabiTrello(object):
 		self.client = client
 		self.tasks = api.tasks()
 		self.labels = {}
-		self.habits_list = None
-		self.todos_list = None
-		self.dailies_list = None
 		self.habits = {}
+		self.habits_dict = {}
+		self.habits_list = None
 		self.dailies = {}
+		self.dailies_dict = {}
+		self.dailies_list = None
 		self.dailies_completed = {}
 		self.todos = {}
-		self.todos_completed = {}
-		self.dailies_dict = {}
-		self.habits_dict = {}
 		self.todos_dict = {}
+		self.todos_list = None
+		self.todos_completed = {}
 
 	def process_dailies(self):
 		# Dailies
@@ -68,9 +68,10 @@ class HabiTrello(object):
 			if daily_id not in self.dailies_dict:
 				print "Daily " + daily["text"] + " was finished!"
 				self.complete_task(daily)
-			tomorrow = date.today() + timedelta(days=1)
-			midnight = datetime.combine(tomorrow, time())
-			card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
+			else:
+				tomorrow = date.today() + timedelta(days=1)
+				midnight = datetime.combine(tomorrow, time())
+				card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
 
 	def process_habits(self):
 		# Habits
@@ -86,9 +87,18 @@ class HabiTrello(object):
 						self.up_arrow_habit(habit)
 
 			for trello_habit in self.trello_habits:
+				trello_habit.fetch()
 				self.habits_dict[trello_habit.description] = trello_habit
 				if trello_habit.description in self.habits:
-					self.down_arrow_habit(self.habits[trello_habit.description])
+					for checklist_item in trello_habit.checklists[0].items:
+						if checklist_item["checked"]:
+							if checklist_item["name"] == "Down":
+								self.down_arrow_habit(self.habits[trello_habit.description])
+							elif checklist_item["name"] == "Up":
+								self.up_arrow_habit(self.habits[trello_habit.description])
+						else:
+							print "Nothing has changed with Habit " + trello_habit.name + "!"
+
 				else:
 					up = False
 					down = True
@@ -110,24 +120,29 @@ class HabiTrello(object):
 
 	def up_arrow_habit(self, habit):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_UP)
-			print "Habit " + habit["text"] + " was finished!"
+			print "Habit " + habit["text"] + " was Up'd!"
 
 	def down_arrow_habit(self, habit):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_DOWN)
-			print "Habit " + habit["text"] + " was not finished!"
+			print "Habit " + habit["text"] + " was Down'd!"
 
 	def update_habits(self):
 		self.habits_list.archive_all_cards()
 
 		for habit_id,habit in self.habits.items():
-			if habit_id not in self.habits_dict and habit["up"]:
-				self.up_arrow_habit(habit)
 			labels = []
+			checklist_items = []
+			checklist_values = []
 			if habit["up"]:
 				labels.append(self.get_label_for("Up"))
+				checklist_items.append("Up")
+				checklist_values.append(False)
 			if habit["down"]:
 				labels.append(self.get_label_for("Down"))
+				checklist_items.append("Down")
+				checklist_values.append(False)
 			card = self.habits_list.add_card(habit["text"], habit_id, labels)
+			card.add_checklist("Up/Down", checklist_items, checklist_values)
 
 	def process_todos(self):
 		# Todos
