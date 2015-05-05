@@ -1,5 +1,6 @@
 HabiTrello
 ==========
+[![Code Climate](https://codeclimate.com/github/larssorenson/habitrello/badges/gpa.svg)](https://codeclimate.com/github/larssorenson/habitrello)
 
 Usage
 =====
