@@ -164,6 +164,7 @@ class HabiTrello(object):
 					self.todos[new_task["id"]] = new_task
 					self.todos_dict[new_task["id"]] = new_task
 				elif trello_todo.checklists[0].items[0]["checked"]:
+					print "Todo " + todo["text"] + " was finished!"
 					self.complete_task(todos[trello_todo.description])
 
 		self.update_todos()
