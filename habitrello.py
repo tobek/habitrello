@@ -57,9 +57,9 @@ class HabiTrello(object):
 	def update_dailies(self):
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
+			tomorrow = date.today() + timedelta(days=1)
+			midnight = datetime.combine(tomorrow, time())
 			if daily_id not in self.dailies_dict:
-				tomorrow = date.today() + timedelta(days=1)
-				midnight = datetime.combine(tomorrow, time())
 
 				card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
 				daily_checked = daily["completed"]
@@ -67,6 +67,12 @@ class HabiTrello(object):
 
 				print "Daily " + daily["text"] + " was created in HabitRPG!"
 				self.dailies_dict[daily_id] = card
+
+			trello_daily = self.dailies_dict[daily_id]
+			daily_due = datetime.strptime(trello_daily.due, "%Y-%m-%d").date()
+			if daily_due <= date.today():
+				trello_daily.set_due(midnight)
+				trello_daily.checklists[0].set_checklist_item("Complete", False)
 
 	def process_habits(self):
 		# Habits
