@@ -1,6 +1,24 @@
 HabiTrello
 ==========
 
+Usage
+=====
+```
+$ python habitrello.py -h
+usage: habitrello.py [-h] [--skip-todos] [--skip-dailies] [--skip-habits]
+
+Sync HabitRPG and Trello tasks!
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --skip-todos    Skip processing Todos
+  --skip-dailies  Skip processing Dailies
+  --skip-habits   Skip processing Habits
+```
+
+Description
+===========
+
 As a user of HabitRPG and Trello, I long for the ability to "sync" the tasks between the two. 
 I also use Trello for more of my day to day task management, so I want HabitRPG to be controlled from Trello. 
 This python program will read the Trello cards in the board "Habit RPG" and tasks in Habit RPG itself to properly sync tasks, as well as determine if they've been completed or not.
