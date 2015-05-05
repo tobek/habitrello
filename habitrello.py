@@ -1,8 +1,8 @@
 import argparse
-from datetime import date, time, timedelta
 from pyhabit import HabitAPI
 from trello import *
 from trello.util import *
+from utils import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret
 
 class HabiTrello(object):
@@ -22,7 +22,7 @@ class HabiTrello(object):
 		self.todos_dict = {}
 		self.todos_list = None
 
-	def process_dailies(self):
+	def process_trello_dailies(self):
 		# Dailies
 		# If we didn't find the list, we have to make a new one
 		# and again assume all the Dailies were finished
@@ -48,17 +48,17 @@ class HabiTrello(object):
 					self.dailies[new_daily["id"]] = new_daily
 					self.dailies_dict[new_daily["id"]] = new_daily
 				# If the checklist item 'Complete' has been checked, the item is done!
-				if daily.checklists[0].items[0]["checked"]:
+				if trello_checked(trello_daily):
 					print "Daily " + trello_daily.name + " was completed!"
 					self.complete_task(self.dailies[trello_daily.description])
 
-		self.update_dailies()
+		self.process_habit_dailies()
 
-	def update_dailies(self):
+	def process_habit_dailies(self):
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
-			tomorrow = date.today() + timedelta(days=1)
-			midnight = datetime.combine(tomorrow, time())
+			tomorrow = get_tomorrow()
+			midnight = get_midnight(tomorrow)
 			if daily_id not in self.dailies_dict:
 
 				card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
@@ -69,12 +69,12 @@ class HabiTrello(object):
 				self.dailies_dict[daily_id] = card
 
 			trello_daily = self.dailies_dict[daily_id]
-			daily_due = datetime.strptime(trello_daily.due, "%Y-%m-%d").date()
+			daily_due = get_trello_due(trello_daily)
 			if daily_due <= date.today():
 				trello_daily.set_due(midnight)
 				trello_daily.checklists[0].set_checklist_item("Complete", False)
 
-	def process_habits(self):
+	def process_trello_habits(self):
 		# Habits
 		if not self.habits_list:
 			self.habits_list = self.board.add_list('Habits')
@@ -104,7 +104,7 @@ class HabiTrello(object):
 					self.habits[new_habit["id"]] = new_habit
 					self.habits_dict[new_habit["id"]] = new_habit
 
-		self.update_habits()
+		self.process_habit_habits()
 
 	def get_up_down_for(self, trello_habit):
 		up = False
@@ -128,7 +128,7 @@ class HabiTrello(object):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_DOWN)
 			print "Habit " + habit["text"] + " was Down'd!"
 
-	def update_habits(self):
+	def process_habit_habits(self):
 		for habit_id,habit in self.habits.items():
 			if habit_id not in self.habits_dict:
 				labels = []
@@ -147,39 +147,76 @@ class HabiTrello(object):
 				print "Habit " + habit["text"] + " was created in HabitRPG!"
 				self.habits_dict[habit_id] = card
 
-	def process_todos(self):
+	def process_trello_todos(self):
 		# Todos
+		# If there is no Todo list in Trello
 		if not self.todos_list:
+			# add it to the board
 			self.todos_list = self.board.add_list('Todos')
 		else:
+			# otherwise, grab all of the cards
 			self.trello_todos = self.todos_list.list_cards()
+			# if the list is closed, open it up
 			if self.todos_list.closed:
 				self.todos_list.open()
 
+			# Iterate through all of the cards in the Todo list in Trello
 			for trello_todo in self.trello_todos:
+				# Do an eager fetch, to get checklists
 				trello_todo.fetch(eager=True)
+				# Create a dictionary for looking up between HabitRPG and Trello
 				self.todos_dict[trello_todo.description] = trello_todo
+				# The corresponding HabitRPG Todo, assuming it doesn't exist
 				habit_todo = None
+				# If it does exist already, we grab it
 				if trello_todo.description in self.habits:
 					habit_todo = self.todos[trello_todo.description]
-				# If we have a task in Trello not in HabitRPG, it means they added it in Trello
-				todo_due = datetime.strptime(trello_todo.due, "%Y-%m-%d").date()
-				if todo_due > date.today():
+				# Get the due date for the Trello card
+				trello_todo_due = get_trello_due(trello_todo)
+				# If the due date has passed, the task is overdue!
+				if trello_todo_due < date.today():
 					print "Todo " + trello_todo.name + " is overdue!"
+				# If we didn't already have a HabitRPG Todo for this Card
+				# it was added in Trello
 				if not habit_todo:
+					# Create the task in HabitRPG
 					habit_todo = self.api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
+					# Add a Due Date to it
+					habit_todo["date"] = trello_todo.due
+					self.api.update_task(habit_todo["id"], habit_todo)
 					print "Todo " + trello_todo.name + " was created in Trello!"
+					# Add it to our Todos
 					self.todos[habit_todo["id"]] = habit_todo
 					self.todos_dict[habit_todo["id"]] = habit_todo
-				elif trello_todo.checklists[0].items[0]["checked"]:
-					print "Todo " + trello_todo.name + " was finished!"
-					self.complete_task(habit_todo)
+				else:
+					# If we already have the HabitRPG task, we're sync'd Trello->HabitRPG
+					# First we check to see if the task was completed in Trello
+					todo_completed = False
+					if trello_checked(trello_todo):
+						self.complete_task(habit_todo)
+						todo_completed = True
+					# Now we check to see if the todo was already finished in HabitRPG
+					if habit_todo["completed"]:
+						trello_todo.checklists[0].set_checklist_item("Complete", True)
+						todo_completed = True
+					if todo_completed:
+						print "Todo " + trello_todo.name + " was finished!"
+					# Now we need to check if the due dates match up.
+					habit_todo_due = None
+					if "date" in habit_todo:
+						habit_todo_due = datetime.strptime(habit_todo["date"], "%m/%d/%Y").date()
+					# We will assume Trello has the correct due date.
+					# Only really because there's no good way to determine, without
+					# using settings (possible TODO)
+					if habit_todo_due != trello_todo_due:
+						habit_todo["date"] = trello_todo.date
+						self.api.update_task(habit_todo)
 
-		self.update_todos()
+		self.process_habit_todos()
 
-	def update_todos(self):
+	def process_habit_todos(self):
 		for todo_id,todo in self.todos.items():
-			if todo_id not in self.todos_dict:
+			if todo_id not in self.todos_dict and not todo["completed"]:
 				due_date = None
 				if "date" in todo:
 					due_date = todo["date"]
@@ -261,11 +298,11 @@ class HabiTrello(object):
 		self.get_labels()
 
 		if not skip_dailies:
-			self.process_dailies()
+			self.process_trello_dailies()
 		if not skip_habits:
-			self.process_habits()
+			self.process_trello_habits()
 		if not skip_todos:
-			self.process_todos()
+			self.process_trello_todos()
 
 parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
 parser.add_argument('--skip-todos', dest='skip_todos', action='store_true', help='Skip processing Todos')
