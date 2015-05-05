@@ -246,39 +246,15 @@ class HabiTrello(object):
 			else:
 				board_list.close()
 		
-		self.setup_todo_list()
-		self.setup_habit_list()
-		self.setup_daily_list()
+		self.setup_list(self.todos_list, 'Todos')
+		self.setup_list(self.habits_list, 'Habits')
+		self.setup_list(self.dailies_list, 'Dailies')
 
-	def setup_todo_list(self):
-		# If there is no Todo list in Trello
-		if not self.todos_list:
-			# add it to the board
-			self.todos_list = self.board.add_list('Todos')
-
-		# if the list is closed, open it up
-		if self.todos_list.closed:
-			self.todos_list.open()
-
-	def setup_habit_list(self):
-		# If there is no Todo list in Trello
-		if not self.habits_list:
-			# add it to the board
-			self.habits_list = self.board.add_list('Habits')
-
-		# if the list is closed, open it up
-		if self.habits_list.closed:
-			self.habits_list.open()
-
-	def setup_daily_list(self):
-		# If there is no Todo list in Trello
-		if not self.dailies_list:
-			# add it to the board
-			self.dailies_list = self.board.add_list('Dailies')
-
-		# if the list is closed, open it up
-		if self.dailies_list.closed:
-			self.dailies_list.open()
+	def setup_list(self, trello_list, name):
+		if not trello_list:
+			trello_list = self.board.add_list(name)
+		if trello_list.closed:
+			trello_list.open()
 
 	def get_labels(self):
 		labels = self.board.get_labels()
