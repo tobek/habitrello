@@ -27,6 +27,15 @@ If a Task exists in Habit RPG but not in Trello, a card will be added for the re
 Each card in Trello has a checklist. For Dailies and Todos they simply have a box to mark the task Completed.
 Habits have an Up and / or Down corresponding to the Habit in HabitRPG, and you simply have to mark the corresponding box.
 
+Feature List
+============
+Currently Working:
+ * Two way Sync
+ * Up/Down Habits
+ * Complete Todos
+ * Complete Dailies
+ * Label Habits for Up and/or Down
+
 Instructions
 ============
 
