@@ -208,12 +208,12 @@ class HabiTrello(object):
 					# Now we need to check if the due dates match up.
 					habit_todo_due = None
 					if "date" in habit_todo:
-						habit_todo_due = datetime.strptime(habit_todo["date"], "%m/%d/%Y").date()
+						habit_todo_due = get_habit_due()
 					# We will assume Trello has the correct due date.
 					# Only really because there's no good way to determine, without
 					# using settings (possible TODO)
 					if habit_todo_due != trello_todo_due:
-						habit_todo["date"] = trello_todo.date
+						habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 						self.api.update_task(habit_todo)
 
 		self.process_habit_todos()
