@@ -18,11 +18,9 @@ class HabiTrello(object):
 		self.dailies = {}
 		self.dailies_dict = {}
 		self.dailies_list = None
-		self.dailies_completed = {}
 		self.todos = {}
 		self.todos_dict = {}
 		self.todos_list = None
-		self.todos_completed = {}
 
 	def process_dailies(self):
 		# Dailies
@@ -44,7 +42,7 @@ class HabiTrello(object):
 				self.dailies_dict[daily.description] = daily
 				# if the trello card is not in our HabitRPG Dailies or Dailies Completed list
 				# we have a new card
-				if daily.description not in self.dailies and daily.description not in self.dailies_completed:
+				if daily.description not in self.dailies:
 					new_daily = self.api.create_task(HabitAPI.TYPE_DAILY, daily.name)
 					print "Daily " + daily.name + " was created in Trello!"
 					self.dailies[new_daily["id"]] = new_daily
@@ -158,7 +156,7 @@ class HabiTrello(object):
 				trello_todo.fetch(eager=True)
 				self.todos_dict[trello_todo.description] = trello_todo
 				# If we have a task in Trello not in HabitRPG, it means they added it in Trello
-				if trello_todo.description not in self.todos and trello_todo.description not in self.todos_completed:
+				if trello_todo.description not in self.todos:
 					new_task = self.api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
 					print "Todo " + trello_todo.name + " was created in Trello!"
 					self.todos[new_task["id"]] = new_task
@@ -238,16 +236,10 @@ class HabiTrello(object):
 		for task in self.tasks:
 			if task["type"] == HabitAPI.TYPE_HABIT:
 				self.habits[task["id"]] = task
-			elif task["completed"] == True:
-				if task["type"] == HabitAPI.TYPE_DAILY:
-					self.dailies_completed[task["id"]] = task
-				else:
-					self.todos_completed[task["id"]] = task
+			elif task["type"] == HabitAPI.TYPE_TODO:
+				self.todos[task["id"]] = task
 			else:
-				if task["type"] == HabitAPI.TYPE_TODO:
-					self.todos[task["id"]] = task
-				else:
-					self.dailies[task["id"]] = task
+				self.dailies[task["id"]] = task
 
 	def main(self, process_todos_bool=True, process_dailies_bool=True, process_habits_bool=True):
 		self.process_tasks()
