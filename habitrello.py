@@ -142,7 +142,7 @@ class HabiTrello(object):
 			# The corresponding HabitRPG Todo, assuming it doesn't exist
 			habit_todo = None
 			# If it does exist already, we grab it
-			if trello_todo.description in self.todos:
+			if trello_todo.description in self.todos.keys():
 				habit_todo = self.todos[trello_todo.description]
 			# Get the due date for the Trello card
 			trello_todo_due = get_trello_due(trello_todo)
@@ -155,7 +155,7 @@ class HabiTrello(object):
 				# Create the task in HabitRPG
 				habit_todo = self.api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
 				# Add a Due Date to it
-				habit_todo["date"] = trello_todo.due
+				habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 				self.api.update_task(habit_todo["id"], habit_todo)
 				print "Todo " + trello_todo.name + " was created in Trello!"
 				# Add it to our Todos
@@ -179,7 +179,7 @@ class HabiTrello(object):
 				# Now we need to check if the due dates match up.
 				habit_todo_due = None
 				if "date" in habit_todo:
-					habit_todo_due = get_habit_due()
+					habit_todo_due = get_habit_due(habit_todo)
 				# We will assume Trello has the correct due date.
 				# Only really because there's no good way to determine, without
 				# using settings (possible TODO)
@@ -192,7 +192,7 @@ class HabiTrello(object):
 			if todo_id not in self.todos_dict and not todo["completed"]:
 				due_date = None
 				if "date" in todo:
-					due_date = todo["date"]
+					due_date = habit_to_trello_due(todo["date"])
 				card = self.todos_list.add_card(todo["text"], todo_id, due=due_date)
 				todo_checked = todo["completed"]
 				card.add_checklist("Complete", ["Completed"], [todo_checked])
