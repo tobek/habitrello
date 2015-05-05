@@ -15,7 +15,7 @@ def get_habit_due(task):
 		else:
 			return datetime.strptime(task["date"], "%Y-%m-%d").date()
 	else:
-		return date.today().strftime("%m/%d/%Y").date()
+		return None
 
 def get_tomorrow():
 	return date.today() + timedelta(days=1)

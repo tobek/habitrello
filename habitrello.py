@@ -14,13 +14,10 @@ class HabiTrello(object):
 		self.labels = {}
 		self.habits = {}
 		self.habits_dict = {}
-		self.habits_list = None
 		self.dailies = {}
 		self.dailies_dict = {}
-		self.dailies_list = None
 		self.todos = {}
 		self.todos_dict = {}
-		self.todos_list = None
 
 	def process_trello_dailies(self):
 		# Dailies
@@ -162,27 +159,28 @@ class HabiTrello(object):
 				trello_todo.set_description(habit_todo["id"])
 			else:
 				# If we already have the HabitRPG task, we're sync'd Trello->HabitRPG
-				# First we check to see if the task was completed in Trello
-				todo_completed = False
-				if trello_checked(trello_todo):
-					self.complete_task(habit_todo)
-					todo_completed = True
-				# Now we check to see if the todo was already finished in HabitRPG
-				if habit_todo["completed"]:
-					trello_todo.checklists[0].set_checklist_item("Complete", True)
-					todo_completed = True
-				if todo_completed:
-					print "Todo " + trello_todo.name + " was finished!"
+				self.check_todo_completed(habit_todo, trello_todo)
 				# Now we need to check if the due dates match up.
-				habit_todo_due = None
-				if "date" in habit_todo:
-					habit_todo_due = get_habit_due(habit_todo)
+				habit_todo_due = get_habit_due(habit_todo)
 				# We will assume Trello has the correct due date.
-				# Only really because there's no good way to determine, without
-				# using settings (possible TODO)
+				# Only really because there's no good way to determine which to use
+				# without using settings (possible TODO)
 				if habit_todo_due != trello_todo_due:
 					habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 					self.api.update_task(habit_todo)
+
+	def check_todo_completed(self, habit_todo, trello_todo):
+		# First we check to see if the task was completed in Trello
+			todo_completed = False
+			if trello_checked(trello_todo):
+				self.complete_task(habit_todo)
+				todo_completed = True
+			# Now we check to see if the todo was already finished in HabitRPG
+			if habit_todo["completed"]:
+				trello_todo.checklists[0].set_checklist_item("Complete", True)
+				todo_completed = True
+			if todo_completed:
+				print "Todo " + trello_todo.name + " was finished!"
 
 	def process_habit_todos(self):
 		for todo_id,todo in self.todos.items():
@@ -309,7 +307,6 @@ client = TrelloClient(
                       token = trello_token,
                       token_secret = trello_token_secret
 	)
-
 
 habit = HabiTrello(api, client)
 habit.main(args.skip_todos, args.skip_dailies, args.skip_habits)
