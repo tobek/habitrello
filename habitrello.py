@@ -36,21 +36,21 @@ class HabiTrello(object):
 				self.dailies_list.open()
 
 			# Now, we iterate through all of the cards
-			for daily in self.trello_dailies:
-				daily.fetch(eager=True)
+			for trello_daily in self.trello_dailies:
+				trello_daily.fetch(eager=True)
 				# Build up a dictionary (for easy lookups later) of the trello cards
-				self.dailies_dict[daily.description] = daily
+				self.dailies_dict[trello_daily.description] = trello_daily
 				# if the trello card is not in our HabitRPG Dailies or Dailies Completed list
 				# we have a new card
-				if daily.description not in self.dailies:
-					new_daily = self.api.create_task(HabitAPI.TYPE_DAILY, daily.name)
-					print "Daily " + daily.name + " was created in Trello!"
+				if trello_daily.description not in self.dailies:
+					new_daily = self.api.create_task(HabitAPI.TYPE_DAILY, trello_daily.name)
+					print "Daily " + trello_daily.name + " was created in Trello!"
 					self.dailies[new_daily["id"]] = new_daily
 					self.dailies_dict[new_daily["id"]] = new_daily
 				# If the checklist item 'Complete' has been checked, the item is done!
 				if daily.checklists[0].items[0]["checked"]:
-					print "Daily " + daily.name + " was completed!"
-					self.complete_task(self.dailies[daily.description])
+					print "Daily " + trello_daily.name + " was completed!"
+					self.complete_task(self.dailies[trello_daily.description])
 
 		self.update_dailies()
 
@@ -159,15 +159,21 @@ class HabiTrello(object):
 			for trello_todo in self.trello_todos:
 				trello_todo.fetch(eager=True)
 				self.todos_dict[trello_todo.description] = trello_todo
+				habit_todo = None
+				if trello_todo.description in self.habits:
+					habit_todo = self.todos[trello_todo.description]
 				# If we have a task in Trello not in HabitRPG, it means they added it in Trello
-				if trello_todo.description not in self.todos:
-					new_task = self.api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
+				todo_due = datetime.strptime(trello_todo.due, "%Y-%m-%d").date()
+				if todo_due > date.today():
+					print "Todo " + trello_todo.name + " is overdue!"
+				if not habit_todo:
+					habit_todo = self.api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
 					print "Todo " + trello_todo.name + " was created in Trello!"
-					self.todos[new_task["id"]] = new_task
-					self.todos_dict[new_task["id"]] = new_task
+					self.todos[habit_todo["id"]] = habit_todo
+					self.todos_dict[habit_todo["id"]] = habit_todo
 				elif trello_todo.checklists[0].items[0]["checked"]:
 					print "Todo " + trello_todo.name + " was finished!"
-					self.complete_task(self.todos[trello_todo.description])
+					self.complete_task(habit_todo)
 
 		self.update_todos()
 
