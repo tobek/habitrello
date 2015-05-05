@@ -47,6 +47,7 @@ class HabiTrello(object):
 					print "Daily " + trello_daily.name + " was created in Trello!"
 					self.dailies[new_daily["id"]] = new_daily
 					self.dailies_dict[new_daily["id"]] = new_daily
+					trello_daily.set_description(new_daily["id"])
 				# If the checklist item 'Complete' has been checked, the item is done!
 				if trello_checked(trello_daily):
 					print "Daily " + trello_daily.name + " was completed!"
@@ -103,6 +104,7 @@ class HabiTrello(object):
 					print "Habit " + trello_habit.name + " was created in Trello!"
 					self.habits[new_habit["id"]] = new_habit
 					self.habits_dict[new_habit["id"]] = new_habit
+					trello_habit.set_description(new_habit["id"])
 
 		self.process_habit_habits()
 
@@ -169,7 +171,7 @@ class HabiTrello(object):
 				# The corresponding HabitRPG Todo, assuming it doesn't exist
 				habit_todo = None
 				# If it does exist already, we grab it
-				if trello_todo.description in self.habits:
+				if trello_todo.description in self.todos:
 					habit_todo = self.todos[trello_todo.description]
 				# Get the due date for the Trello card
 				trello_todo_due = get_trello_due(trello_todo)
@@ -188,6 +190,8 @@ class HabiTrello(object):
 					# Add it to our Todos
 					self.todos[habit_todo["id"]] = habit_todo
 					self.todos_dict[habit_todo["id"]] = habit_todo
+					# Make sure the trello card has the HabitRPG task ID in the description
+					trello_todo.set_description(habit_todo["id"])
 				else:
 					# If we already have the HabitRPG task, we're sync'd Trello->HabitRPG
 					# First we check to see if the task was completed in Trello
