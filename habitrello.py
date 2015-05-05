@@ -109,7 +109,7 @@ class HabiTrello(object):
 	def process_habit_habits(self):
 		for habit_id,habit in self.habits.items():
 			if habit_id not in self.habits_dict:
-				labels, checklist_items, checklist_values = get_habit_checklist_label(habit)
+				labels, checklist_items, checklist_values = self.get_habit_checklist_label(habit)
 				card = self.habits_list.add_card(habit["text"], habit_id, labels)
 				card.add_checklist("Up/Down", checklist_items, checklist_values)
 				print "Habit " + habit["text"] + " was created in HabitRPG!"
@@ -119,14 +119,11 @@ class HabiTrello(object):
 		labels = []
 		checklist_items = []
 		checklist_values = []
-		if habit["up"]:
-			labels.append(self.get_label_for("Up"))
-			checklist_items.append("Up")
-			checklist_values.append(False)
-		if habit["down"]:
-			labels.append(self.get_label_for("Down"))
-			checklist_items.append("Down")
-			checklist_values.append(False)
+		for prop, label in [["up", "Up"], ["down", "Down"]]:
+			if habit[prop]:
+				labels.append(self.get_label_for(label))
+				checklist_items.append(label)
+				checklist_values.append(False)
 		return labels, checklist_items, checklist_values
 
 	def process_trello_todos(self):
