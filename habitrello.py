@@ -34,44 +34,42 @@ class HabiTrello(object):
 		else:
 			self.trello_dailies = self.dailies_list.list_cards()
 			# If the list was closed, we open it
-			# and mark all of the dailies as completed
 			if self.dailies_list.closed:
 				self.dailies_list.open()
-				if not self.new_board:
-					for dailiy_id,daily in self.dailies.items():
-						print "Daily " + daily["text"] + " was finished!"
-						self.complete_task(daily)
 
-			# Now, we iterate through all of the remaining cards and remove them
+			# Now, we iterate through all of the cards
 			for daily in self.trello_dailies:
+				daily.fetch(eager=True)
+				# Build up a dictionary (for easy lookups later) of the trello cards
 				self.dailies_dict[daily.description] = daily
-				if daily.description in self.dailies:
-					print "Daily " + daily.name + " was not done today!"
-				elif daily.description in self.dailies_completed:
-					print "Daily " + daily.name + " was done!"
-				else:
+				# if the trello card is not in our HabitRPG Dailies or Dailies Completed list
+				# we have a new card
+				if daily.description not in self.dailies and daily.description not in self.dailies_completed:
 					new_daily = self.api.create_task(HabitAPI.TYPE_DAILY, daily.name)
-					print "Daily " + daily.name + " was created!"
+					print "Daily " + daily.name + " was created in Trello!"
 					self.dailies[new_daily["id"]] = new_daily
 					self.dailies_dict[new_daily["id"]] = new_daily
+				# If the checklist item 'Complete' has been checked, the item is done!
+				if daily.checklists[0].items[0]["checked"]:
+					print "Daily " + daily.name + " was completed!"
+					self.complete_task(daily)
 
 		self.update_dailies()
-
-	def complete_task(self, task):
-		task["completed"] = True
-		self.api.update_task(task["id"], task)
 
 	def update_dailies(self):
 		self.dailies_list.archive_all_cards()
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
+			tomorrow = date.today() + timedelta(days=1)
+			midnight = datetime.combine(tomorrow, time())
+
+			card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
+			daily_checked = daily["completed"]
+			card.add_checklist("Complete", ["Complete"], [daily_checked])
+
 			if daily_id not in self.dailies_dict:
-				print "Daily " + daily["text"] + " was finished!"
-				self.complete_task(daily)
-			else:
-				tomorrow = date.today() + timedelta(days=1)
-				midnight = datetime.combine(tomorrow, time())
-				card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
+				print "Daily " + daily["text"] + " was created in HabitRPG!"
+				self.dailies_dict[daily_id] = card
 
 	def process_habits(self):
 		# Habits
@@ -100,23 +98,27 @@ class HabiTrello(object):
 							print "Nothing has changed with Habit " + trello_habit.name + "!"
 
 				else:
-					up = False
-					down = True
-					for label in trello_habit.labels:
-						if label.name == "Up":
-							up = True
-						else:
-							up = False
-						if label.name == "Down":
-							down = True
-						else:
-							down = False
+					(up, down) = self.get_up_down_for(trello_habit)
 					new_habit = self.api.create_habit(trello_habit.name, up, down)
-					print "Habit " + trello_habit.name + " was created!"
+					print "Habit " + trello_habit.name + " was created in Trello!"
 					self.habits[new_habit["id"]] = new_habit
 					self.habits_dict[new_habit["id"]] = new_habit
 
 		self.update_habits()
+
+	def get_up_down_for(self, trello_habit):
+		up = False
+		down = True
+		for label in trello_habit.labels:
+			if label.name == "Up":
+				up = True
+			else:
+				up = False
+			if label.name == "Down":
+				down = True
+			else:
+				down = False
+		return (up, down)
 
 	def up_arrow_habit(self, habit):
 			self.api.perform_task(habit["id"], HabitAPI.DIRECTION_UP)
@@ -128,7 +130,6 @@ class HabiTrello(object):
 
 	def update_habits(self):
 		self.habits_list.archive_all_cards()
-
 		for habit_id,habit in self.habits.items():
 			labels = []
 			checklist_items = []
@@ -143,6 +144,9 @@ class HabiTrello(object):
 				checklist_values.append(False)
 			card = self.habits_list.add_card(habit["text"], habit_id, labels)
 			card.add_checklist("Up/Down", checklist_items, checklist_values)
+			if habit_id not in self.habits_dict:
+				print "Habit " + habit["text"] + " was created in HabitRPG!"
+				self.habits_dict[habit_id] = card
 
 	def process_todos(self):
 		# Todos
@@ -158,31 +162,33 @@ class HabiTrello(object):
 						self.complete_task(todo)
 
 			for trello_todo in self.trello_todos:
+				trello_todo.fetch(eager=True)
 				self.todos_dict[trello_todo.description] = trello_todo
 				# If we have a task in Trello not in HabitRPG, it means they added it in Trello
 				if trello_todo.description not in self.todos and trello_todo.description not in self.todos_completed:
 					new_task = self.api.create_task(HabitAPI.TYPE_TODO, trello_todo.name)
-					print "Todo " + trello_todo.name + " was created!"
+					print "Todo " + trello_todo.name + " was created in Trello!"
 					self.todos[new_task["id"]] = new_task
 					self.todos_dict[new_task["id"]] = new_task
-				else:
-					print "Todo " + trello_todo.name + " was not done today!"
+				elif trello_todo.checklists[0].items[0]["checked"]:
+					self.complete_task(todos[trello_todo.description])
 
 		self.update_todos()
-
-	def open_todo(self, todo):
-		todo["completed"] = False
-		self.api.update_task(todo["id"], todo)
 
 	def update_todos(self):
 		self.todos_list.archive_all_cards()
 
 		for todo_id,todo in self.todos.items():
+			card = self.todos_list.add_card(todo["text"], todo_id, due=todo["date"])
+			todo_checked = todo["completed"]
+			card.add_checklist("Complete", ["Completed"], [todo_checked])
 			if todo_id not in self.todos_dict:
-				print "Todo " + todo["text"] + " was finished!"
-				self.complete_task(todo)
-			else:
-				self.todos_list.add_card(todo["text"], todo_id)
+				print "Todo " + todo["text"] + " was created from HabitRPG!"
+				self.todos_dict[todo_id] = card
+
+	def complete_task(self, task):
+		task["completed"] = True
+		self.api.update_task(task["id"], task)
 
 	def add_labels(self, habitrello_board):
 		self.labels["Up"] = self.board.add_label("Up", "green")
