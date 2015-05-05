@@ -50,22 +50,21 @@ class HabiTrello(object):
 				# If the checklist item 'Complete' has been checked, the item is done!
 				if daily.checklists[0].items[0]["checked"]:
 					print "Daily " + daily.name + " was completed!"
-					self.complete_task(daily)
+					self.complete_task(self.dailies[daily.description])
 
 		self.update_dailies()
 
 	def update_dailies(self):
-		self.dailies_list.archive_all_cards()
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
-			tomorrow = date.today() + timedelta(days=1)
-			midnight = datetime.combine(tomorrow, time())
-
-			card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
-			daily_checked = daily["completed"]
-			card.add_checklist("Complete", ["Complete"], [daily_checked])
-
 			if daily_id not in self.dailies_dict:
+				tomorrow = date.today() + timedelta(days=1)
+				midnight = datetime.combine(tomorrow, time())
+
+				card = self.dailies_list.add_card(daily["text"], daily_id, due=str(midnight))
+				daily_checked = daily["completed"]
+				card.add_checklist("Complete", ["Complete"], [daily_checked])
+
 				print "Daily " + daily["text"] + " was created in HabitRPG!"
 				self.dailies_dict[daily_id] = card
 
@@ -124,22 +123,21 @@ class HabiTrello(object):
 			print "Habit " + habit["text"] + " was Down'd!"
 
 	def update_habits(self):
-		self.habits_list.archive_all_cards()
 		for habit_id,habit in self.habits.items():
-			labels = []
-			checklist_items = []
-			checklist_values = []
-			if habit["up"]:
-				labels.append(self.get_label_for("Up"))
-				checklist_items.append("Up")
-				checklist_values.append(False)
-			if habit["down"]:
-				labels.append(self.get_label_for("Down"))
-				checklist_items.append("Down")
-				checklist_values.append(False)
-			card = self.habits_list.add_card(habit["text"], habit_id, labels)
-			card.add_checklist("Up/Down", checklist_items, checklist_values)
 			if habit_id not in self.habits_dict:
+				labels = []
+				checklist_items = []
+				checklist_values = []
+				if habit["up"]:
+					labels.append(self.get_label_for("Up"))
+					checklist_items.append("Up")
+					checklist_values.append(False)
+				if habit["down"]:
+					labels.append(self.get_label_for("Down"))
+					checklist_items.append("Down")
+					checklist_values.append(False)
+				card = self.habits_list.add_card(habit["text"], habit_id, labels)
+				card.add_checklist("Up/Down", checklist_items, checklist_values)
 				print "Habit " + habit["text"] + " was created in HabitRPG!"
 				self.habits_dict[habit_id] = card
 
@@ -168,13 +166,14 @@ class HabiTrello(object):
 		self.update_todos()
 
 	def update_todos(self):
-		self.todos_list.archive_all_cards()
-
 		for todo_id,todo in self.todos.items():
-			card = self.todos_list.add_card(todo["text"], todo_id, due=todo["date"])
-			todo_checked = todo["completed"]
-			card.add_checklist("Complete", ["Completed"], [todo_checked])
 			if todo_id not in self.todos_dict:
+				due_date = None
+				if "date" in todo:
+					due_date = todo["date"]
+				card = self.todos_list.add_card(todo["text"], todo_id, due=due_date)
+				todo_checked = todo["completed"]
+				card.add_checklist("Complete", ["Completed"], [todo_checked])
 				print "Todo " + todo["text"] + " was created from HabitRPG!"
 				self.todos_dict[todo_id] = card
 
@@ -241,23 +240,25 @@ class HabiTrello(object):
 			else:
 				self.dailies[task["id"]] = task
 
-	def main(self, process_todos_bool=True, process_dailies_bool=True, process_habits_bool=True):
+	def main(self, skip_todos=False, skip_dailies=False, skip_habits=False):
+		if skip_todos and skip_dailies and skip_habits:
+			return
 		self.process_tasks()
 		self.setup_board()
 		self.setup_lists()
 		self.get_labels()
 
-		if process_dailies_bool:
+		if not skip_dailies:
 			self.process_dailies()
-		if process_habits_bool:
+		if not skip_habits:
 			self.process_habits()
-		if process_todos_bool:
+		if not skip_todos:
 			self.process_todos()
 
 parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
-parser.add_argument('--process_todos', dest='process_todos', action='store_true', help='Indicate to process the Todos')
-parser.add_argument('--process_dailies', dest='process_dailies', action='store_true', help='Indicate to process the Dailies')
-parser.add_argument('--process_habits', dest='process_habits', action='store_true', help='Indicate to process the Habits')
+parser.add_argument('--skip-todos', dest='skip_todos', action='store_true', help='Skip processing Todos')
+parser.add_argument('--skip-dailies', dest='skip_dailies', action='store_true', help='Skip processing Dailies')
+parser.add_argument('--skip-habits', dest='skip_habits', action='store_true', help='Skip processing Habits')
 args = parser.parse_args()
 
 # Get the tasks for the user in HabitRPG
@@ -279,4 +280,4 @@ client = TrelloClient(
 
 
 habit = HabiTrello(api, client)
-habit.main(args.process_todos, args.process_dailies, args.process_habits)
+habit.main(args.skip_todos, args.skip_dailies, args.skip_habits)

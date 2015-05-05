@@ -23,7 +23,19 @@ Next, you need your [Trello api keys](https://trello.com/1/appKey/generate). Pla
 
 Next, if you run python habitrello.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to keys.py in the final two spots.
 
-Then simply run python habitrello.py  
+Then simply run  
+```
+python habitrello.py
+```
+
+You can also pass the flags
+```
+    --skip-todos
+    --skip-dailies
+    --skip-habits
+```
+The flags each indicate whether or not to process the corresponding set of tasks. 
+This is useful if you want them to be processed independently or you want to do a manual processing.  
 Ideally, you would set up a timed task such as a CRON job to run every 5 minutes or so.
 HabiTrello should create the board, lists, and populate them with your dailies, habits, and todos automatically
 for you.
