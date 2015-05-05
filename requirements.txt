@@ -1,2 +1,2 @@
 git+git://github.com/larssorenson/py-trello
-git+git://github.com/larssorenson/pyhabit
+git+git://github.com/elssar/pyhabit

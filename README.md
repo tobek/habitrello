@@ -71,6 +71,5 @@ I would like to warn that this is largely still a Work In Progress. If you value
 
 Credits
 =======
-[py-habit](https://github.com/elssar/pyhabit) - I'm currently using my own fork of this
-because it's old and doesn't appear to be maintained.
-[py-trello](https://github.com/sarumont/py-trello) - Additionally using my own fork
+[pyhabit](https://github.com/elssar/pyhabit)
+[py-trello](https://github.com/sarumont/py-trello) - I'm using my own fork because the API seems to be slightly outdated for some functionality I need
