@@ -80,9 +80,6 @@ class HabiTrello(object):
 
 			if self.habits_list.closed:
 				self.habits_list.open()
-				if not self.new_board:
-					for habit_id,habit in self.habits.items():
-						self.up_arrow_habit(habit)
 
 			for trello_habit in self.trello_habits:
 				trello_habit.fetch(eager=True)
@@ -156,10 +153,6 @@ class HabiTrello(object):
 			self.trello_todos = self.todos_list.list_cards()
 			if self.todos_list.closed:
 				self.todos_list.open()
-				if not self/new_board:
-					for todo_id,todo in self.todos.items():
-						print "Todo " + todo["text"] + " was finished!"
-						self.complete_task(todo)
 
 			for trello_todo in self.trello_todos:
 				trello_todo.fetch(eager=True)
@@ -208,12 +201,10 @@ class HabiTrello(object):
 				self.board = board
 				break
 
-		self.new_board = False
 		# if we don't have a Habit RPG borad, then we have to make a new one
 		if not self.board:
 			self.board = client.add_board('Habit RPG')
 			self.add_labels()
-			self.new_board = True
 		# if the board we found was closed, then we open it
 		# and assume that the user had finished all of the dailies, habits, and tasks
 		elif self.board.closed:

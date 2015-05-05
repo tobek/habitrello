@@ -1,7 +1,13 @@
 HabiTrello
 ==========
 
-As a user of HabitRPG and Trello, I long for the ability to "sync" the tasks between the two. I also use Trello for more of my day to day task management, so I want HabitRPG to be controlled from Trello. This python script will read the Trello cards in the "Habit RPG" board and the "Dailies", "Habits", and "Todos" lists to determine if a user has finished a daily, habit, or todo. If a card is present, it is assumed to be incomplete. If it isn't there, or if an entire list is closed, or the entire board, then the tasks at each level are considered complete. 
+As a user of HabitRPG and Trello, I long for the ability to "sync" the tasks between the two. 
+I also use Trello for more of my day to day task management, so I want HabitRPG to be controlled from Trello. 
+This python program will read the Trello cards in the board "Habit RPG" and tasks in Habit RPG itself to properly sync tasks, as well as determine if they've been completed or not.
+If a Card exists in Trello but not in Habit RPG, it will be created in Habit RPG and it's task type will be determined by the list it is in.
+If a Task exists in Habit RPG but not in Trello, a card will be added for the related task, in the list depending on the task type.
+Each card in Trello has a checklist. For Dailies and Todos they simply have a box to mark the task Completed.
+Habits have an Up and / or Down corresponding to the Habit in HabitRPG, and you simply have to mark the corresponding box.
 
 Instructions
 ============
@@ -18,7 +24,7 @@ Next, you need your [Trello api keys](https://trello.com/1/appKey/generate). Pla
 Next, if you run python habitrello.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to keys.py in the final two spots.
 
 Then simply run python habitrello.py  
-Ideally, you would set up a timed task such as a Cron job to run just before midnight.  
+Ideally, you would set up a timed task such as a CRON job to run every 5 minutes or so.
 HabiTrello should create the board, lists, and populate them with your dailies, habits, and todos automatically
 for you.
 
