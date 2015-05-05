@@ -169,7 +169,7 @@ class HabiTrello(object):
 				# The corresponding HabitRPG Todo, assuming it doesn't exist
 				habit_todo = None
 				# If it does exist already, we grab it
-				if trello_todo.description in self.habits:
+				if trello_todo.description in self.todos:
 					habit_todo = self.todos[trello_todo.description]
 				# Get the due date for the Trello card
 				trello_todo_due = get_trello_due(trello_todo)
