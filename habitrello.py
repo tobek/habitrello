@@ -269,24 +269,18 @@ class HabiTrello(object):
 		if not skip_dailies:
 			print_message("Processing Trello Dailies.")
 			self.process_trello_dailies()
-			print_message("Done!")
 			print_message("Processing HabitRPG Dailies.")
 			self.process_habit_dailies()
-			print_message("Done!")
 		if not skip_habits:
 			print_message("Processing Trello Habits.")
 			self.process_trello_habits()
-			print_message("Done!")
-			print_message("Processing HabitRPG habits.")
+			print_message("Processing HabitRPG Habits.")
 			self.process_habit_habits()
-			print_message("Done!")
 		if not skip_todos:
 			print_message("Processing Trello Todos.")
 			self.process_trello_todos()
-			print_message("Done!")
 			print_message("Processing HabitRPG Todos.")
 			self.process_habit_todos()
-			print_message("Done!")
 
 parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
 parser.add_argument('--skip-todos', dest='skip_todos', action='store_true', help='Skip processing Todos')
