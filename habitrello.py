@@ -22,7 +22,6 @@ class HabiTrello(object):
 
 	def process_trello_dailies(self):
 		# Dailies
-		print "Processing Trello Dailies."
 		self.trello_dailies = self.dailies_list.list_cards()
 
 		# Now, we iterate through all of the cards
@@ -42,10 +41,8 @@ class HabiTrello(object):
 			if trello_checked(trello_daily):
 				print_message("Daily " + trello_daily.name + " was completed!")
 				self.complete_task(self.dailies[trello_daily.description])
-		print "Done!"
 
 	def process_habit_dailies(self):
-		print "Processing HabitRPG Dailies."
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
 			tomorrow = get_tomorrow()
@@ -64,11 +61,9 @@ class HabiTrello(object):
 			if daily_due <= date.today():
 				trello_daily.set_due(midnight)
 				trello_daily.checklists[0].set_checklist_item("Complete", False)
-		print "Done!"
 
 	def process_trello_habits(self):
 		# Habits
-		print "Processing Trello Habits."
 		self.trello_habits = self.habits_list.list_cards()
 		for trello_habit in self.trello_habits:
 			trello_habit.fetch(eager=True)
@@ -90,14 +85,13 @@ class HabiTrello(object):
 				self.habits[new_habit["id"]] = new_habit
 				self.habits_dict[new_habit["id"]] = new_habit
 				trello_habit.set_description(new_habit["id"])
-		print "Done!"
+		print_message("Done!")
 
 	def arrow_habit(self, habit, direction):
 		self.api.perform_task(habit["id"], direction)
 		print_message("Habit " + habit["text"] + " was " + diretion +"'d!")
 
 	def process_habit_habits(self):
-		print "Processing HabitRPG habits."
 		for habit_id,habit in self.habits.items():
 			if habit_id not in self.habits_dict:
 				labels, checklist_items, checklist_values = self.get_habit_checklist_label(habit)
@@ -105,7 +99,7 @@ class HabiTrello(object):
 				card.add_checklist("Up/Down", checklist_items, checklist_values)
 				print_message("Habit " + habit["text"] + " was created in HabitRPG!")
 				self.habits_dict[habit_id] = card
-		print "Done!"
+		print_message("Done!")
 
 	def get_habit_checklist_label(self, habit):
 		labels = []
@@ -119,7 +113,6 @@ class HabiTrello(object):
 		return labels, checklist_items, checklist_values
 
 	def process_trello_todos(self):
-		print "Processing Trello Todos."
 		# Todos
 		# grab all of the cards
 		self.trello_todos = self.todos_list.list_cards()
@@ -164,7 +157,7 @@ class HabiTrello(object):
 				if habit_todo_due != trello_todo_due:
 					habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 					self.api.update_task(habit_todo)
-		print "Done!"
+		print_message("Done!")
 
 	def check_todo_completed(self, habit_todo, trello_todo):
 		# First we check to see if the task was completed in Trello
@@ -180,7 +173,6 @@ class HabiTrello(object):
 				print_message("Todo " + trello_todo.name + " was finished!")
 
 	def process_habit_todos(self):
-		print "Processing HabitRPG Todos."
 		for todo_id,todo in self.todos.items():
 			if todo_id not in self.todos_dict and not todo["completed"]:
 				due_date = None
@@ -191,7 +183,7 @@ class HabiTrello(object):
 				card.add_checklist("Complete", ["Completed"], [todo_checked])
 				print_message("Todo " + todo["text"] + " was created from HabitRPG!")
 				self.todos_dict[todo_id] = card
-		print "Done!"
+		print_message("Done!")
 
 	def complete_task(self, task):
 		task["completed"] = True
@@ -275,14 +267,26 @@ class HabiTrello(object):
 		self.get_labels()
 
 		if not skip_dailies:
+			print_message("Processing Trello Dailies.")
 			self.process_trello_dailies()
+			print_message("Done!")
+			print_message("Processing HabitRPG Dailies.")
 			self.process_habit_dailies()
+			print_message("Done!")
 		if not skip_habits:
+			print_message("Processing Trello Habits.")
 			self.process_trello_habits()
+			print_message("Done!")
+			print_message("Processing HabitRPG habits.")
 			self.process_habit_habits()
+			print_message("Done!")
 		if not skip_todos:
+			print_message("Processing Trello Todos.")
 			self.process_trello_todos()
+			print_message("Done!")
+			print_message("Processing HabitRPG Todos.")
 			self.process_habit_todos()
+			print_message("Done!")
 
 parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
 parser.add_argument('--skip-todos', dest='skip_todos', action='store_true', help='Skip processing Todos')
