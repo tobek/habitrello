@@ -4,6 +4,7 @@ from trello import *
 from trello.util import *
 from utils import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret
+from datetime import date
 
 class HabiTrello(object):
 
@@ -21,6 +22,7 @@ class HabiTrello(object):
 
 	def process_trello_dailies(self):
 		# Dailies
+		print "Processing Trello Dailies."
 		self.trello_dailies = self.dailies_list.list_cards()
 
 		# Now, we iterate through all of the cards
@@ -32,16 +34,18 @@ class HabiTrello(object):
 			# we have a new card
 			if trello_daily.description not in self.dailies:
 				new_daily = self.api.create_task(HabitAPI.TYPE_DAILY, trello_daily.name)
-				print "Daily " + trello_daily.name + " was created in Trello!"
+				print_message("Daily " + trello_daily.name + " was created in Trello!")
 				self.dailies[new_daily["id"]] = new_daily
 				self.dailies_dict[new_daily["id"]] = new_daily
 				trello_daily.set_description(new_daily["id"])
 			# If the checklist item 'Complete' has been checked, the item is done!
 			if trello_checked(trello_daily):
-				print "Daily " + trello_daily.name + " was completed!"
+				print_message("Daily " + trello_daily.name + " was completed!")
 				self.complete_task(self.dailies[trello_daily.description])
+		print "Done!"
 
 	def process_habit_dailies(self):
+		print "Processing HabitRPG Dailies."
 		# then we add in the cards again
 		for daily_id,daily in self.dailies.items():
 			tomorrow = get_tomorrow()
@@ -52,7 +56,7 @@ class HabiTrello(object):
 				daily_checked = daily["completed"]
 				card.add_checklist("Complete", ["Complete"], [daily_checked])
 
-				print "Daily " + daily["text"] + " was created in HabitRPG!"
+				print_message("Daily " + daily["text"] + " was created in HabitRPG!")
 				self.dailies_dict[daily_id] = card
 
 			trello_daily = self.dailies_dict[daily_id]
@@ -60,9 +64,11 @@ class HabiTrello(object):
 			if daily_due <= date.today():
 				trello_daily.set_due(midnight)
 				trello_daily.checklists[0].set_checklist_item("Complete", False)
+		print "Done!"
 
 	def process_trello_habits(self):
 		# Habits
+		print "Processing Trello Habits."
 		self.trello_habits = self.habits_list.list_cards()
 		for trello_habit in self.trello_habits:
 			trello_habit.fetch(eager=True)
@@ -75,42 +81,31 @@ class HabiTrello(object):
 						elif checklist_item["name"] == "Up":
 							self.arrow_habit(self.habits[trello_habit.description], HabitAPI.DIRECTION_UP)
 					else:
-						print "Nothing has changed with Habit " + trello_habit.name + "!"
+						print_message("Nothing has changed with Habit " + trello_habit.name + "!")
 
 			else:
-				(up, down) = self.get_up_down_for(trello_habit)
+				(up, down) = get_up_down_for(trello_habit)
 				new_habit = self.api.create_habit(trello_habit.name, up, down)
-				print "Habit " + trello_habit.name + " was created in Trello!"
+				print_message("Habit " + trello_habit.name + " was created in Trello!")
 				self.habits[new_habit["id"]] = new_habit
 				self.habits_dict[new_habit["id"]] = new_habit
 				trello_habit.set_description(new_habit["id"])
-
-	def get_up_down_for(self, trello_habit):
-		up = False
-		down = True
-		for label in trello_habit.labels:
-			if label.name == "Up":
-				up = True
-			else:
-				up = False
-			if label.name == "Down":
-				down = True
-			else:
-				down = False
-		return (up, down)
+		print "Done!"
 
 	def arrow_habit(self, habit, direction):
 		self.api.perform_task(habit["id"], direction)
-		print "Habit " + habit["text"] + " was " + diretion +"'d!"
+		print_message("Habit " + habit["text"] + " was " + diretion +"'d!")
 
 	def process_habit_habits(self):
+		print "Processing HabitRPG habits."
 		for habit_id,habit in self.habits.items():
 			if habit_id not in self.habits_dict:
 				labels, checklist_items, checklist_values = self.get_habit_checklist_label(habit)
 				card = self.habits_list.add_card(habit["text"], habit_id, labels)
 				card.add_checklist("Up/Down", checklist_items, checklist_values)
-				print "Habit " + habit["text"] + " was created in HabitRPG!"
+				print_message("Habit " + habit["text"] + " was created in HabitRPG!")
 				self.habits_dict[habit_id] = card
+		print "Done!"
 
 	def get_habit_checklist_label(self, habit):
 		labels = []
@@ -124,6 +119,7 @@ class HabiTrello(object):
 		return labels, checklist_items, checklist_values
 
 	def process_trello_todos(self):
+		print "Processing Trello Todos."
 		# Todos
 		# grab all of the cards
 		self.trello_todos = self.todos_list.list_cards()
@@ -142,7 +138,7 @@ class HabiTrello(object):
 			trello_todo_due = get_trello_due(trello_todo)
 			# If the due date has passed, the task is overdue!
 			if trello_todo_due < date.today():
-				print "Todo " + trello_todo.name + " is overdue!"
+				print_message("Todo " + trello_todo.name + " is overdue!")
 			# If we didn't already have a HabitRPG Todo for this Card
 			# it was added in Trello
 			if not habit_todo:
@@ -151,7 +147,7 @@ class HabiTrello(object):
 				# Add a Due Date to it
 				habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 				self.api.update_task(habit_todo["id"], habit_todo)
-				print "Todo " + trello_todo.name + " was created in Trello!"
+				print_message("Todo " + trello_todo.name + " was created in Trello!")
 				# Add it to our Todos
 				self.todos[habit_todo["id"]] = habit_todo
 				self.todos_dict[habit_todo["id"]] = habit_todo
@@ -168,6 +164,7 @@ class HabiTrello(object):
 				if habit_todo_due != trello_todo_due:
 					habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 					self.api.update_task(habit_todo)
+		print "Done!"
 
 	def check_todo_completed(self, habit_todo, trello_todo):
 		# First we check to see if the task was completed in Trello
@@ -180,9 +177,10 @@ class HabiTrello(object):
 				trello_todo.checklists[0].set_checklist_item("Complete", True)
 				todo_completed = True
 			if todo_completed:
-				print "Todo " + trello_todo.name + " was finished!"
+				print_message("Todo " + trello_todo.name + " was finished!")
 
 	def process_habit_todos(self):
+		print "Processing HabitRPG Todos."
 		for todo_id,todo in self.todos.items():
 			if todo_id not in self.todos_dict and not todo["completed"]:
 				due_date = None
@@ -191,8 +189,9 @@ class HabiTrello(object):
 				card = self.todos_list.add_card(todo["text"], todo_id, due=due_date)
 				todo_checked = todo["completed"]
 				card.add_checklist("Complete", ["Completed"], [todo_checked])
-				print "Todo " + todo["text"] + " was created from HabitRPG!"
+				print_message("Todo " + todo["text"] + " was created from HabitRPG!")
 				self.todos_dict[todo_id] = card
+		print "Done!"
 
 	def complete_task(self, task):
 		task["completed"] = True
