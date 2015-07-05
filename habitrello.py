@@ -3,11 +3,12 @@ from pyhabit import HabitAPI
 from trello import *
 from trello.util import *
 from utils import *
-from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret, trello_token, trello_token_secret
+from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret,\
+	trello_token, trello_token_secret, board_name
 from datetime import date
 
-class HabiTrello(object):
 
+class HabiTrello(object):
 	def __init__(self, api, client):
 		self.api = api
 		self.client = client
@@ -203,13 +204,13 @@ class HabiTrello(object):
 
 		# Loop through the user's boards until we find the Habit RPG one
 		for board in self.client.list_boards():
-			if board.name == 'Habit RPG':
+			if board.name == board_name:
 				self.board = board
 				break
 
 		# if we don't have a Habit RPG borad, then we have to make a new one
 		if not self.board:
-			self.board = client.add_board('Habit RPG')
+			self.board = client.add_board(board_name)
 			self.add_labels()
 		# if the board we found was closed, then we open it
 		# and assume that the user had finished all of the dailies, habits, and tasks
