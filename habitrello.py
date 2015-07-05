@@ -4,7 +4,8 @@ from trello import *
 from trello.util import *
 from utils import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret,\
-	trello_token, trello_token_secret, board_name
+	trello_token, trello_token_secret, board_name, todos_list_name,\
+	dailies_list_name, habits_list_name
 from datetime import date
 
 
@@ -233,21 +234,21 @@ class HabiTrello(object):
 		# Now we look in the Habit RPG board for all of the lists
 		for board_list in self.board.get_lists('all'):
 			# if we find the Dailies list
-			if board_list.name == 'Dailies':
+			if board_list.name == dailies_list_name:
 				# We grab the object
 				self.dailies_list = board_list
 			# Rinse and repeat for Todos and Habits
-			elif board_list.name == 'Todos':
+			elif board_list.name == todos_list_name:
 				self.todos_list = board_list
-			elif board_list.name == 'Habits':
+			elif board_list.name == habits_list_name:
 				self.habits_list = board_list
 			# Finally, we close any lists that aren't related to Habit RPG
 			else:
 				board_list.close()
 		
-		self.setup_list(self.todos_list, 'Todos')
-		self.setup_list(self.habits_list, 'Habits')
-		self.setup_list(self.dailies_list, 'Dailies')
+		self.setup_list(self.todos_list, todos_list_name)
+		self.setup_list(self.habits_list, habits_list_name)
+		self.setup_list(self.dailies_list, dailies_list_name)
 
 	def setup_list(self, trello_list, name):
 		if trello_list is None:
