@@ -5,7 +5,7 @@ from trello.util import *
 from utils import *
 from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret,\
 	trello_token, trello_token_secret, board_name, todos_list_name,\
-	dailies_list_name, habits_list_name
+	dailies_list_name, habits_list_name, close_other_lists
 from datetime import date
 
 
@@ -244,7 +244,8 @@ class HabiTrello(object):
 				self.habits_list = board_list
 			# Finally, we close any lists that aren't related to Habit RPG
 			else:
-				board_list.close()
+				if close_other_lists:
+					board_list.close()
 		
 		self.setup_list(self.todos_list, todos_list_name)
 		self.setup_list(self.habits_list, habits_list_name)
