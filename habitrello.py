@@ -16,12 +16,18 @@ class HabiTrello(object):
 		self.labels = {}
 		self.habits = {}
 		self.habits_dict = {}
+		self.habits_list = None
 		self.dailies = {}
 		self.dailies_dict = {}
+		self.dailies_list = None
 		self.todos = {}
 		self.todos_dict = {}
+		self.todos_list = None
 
 	def process_trello_dailies(self):
+		if self.dailies_list is None:
+			print 'No Dailies to process.'
+			return
 		# Dailies
 		self.trello_dailies = self.dailies_list.list_cards()
 
@@ -45,7 +51,7 @@ class HabiTrello(object):
 
 	def process_habit_dailies(self):
 		# then we add in the cards again
-		for daily_id,daily in self.dailies.items():
+		for daily_id, daily in self.dailies.items():
 			tomorrow = get_tomorrow()
 			midnight = get_midnight(tomorrow)
 			if daily_id not in self.dailies_dict:
@@ -64,6 +70,9 @@ class HabiTrello(object):
 				trello_daily.checklists[0].set_checklist_item("Complete", False)
 
 	def process_trello_habits(self):
+		if self.habits_list is None:
+			print 'No Habits to process.'
+			return
 		# Habits
 		self.trello_habits = self.habits_list.list_cards()
 		for trello_habit in self.trello_habits:
@@ -90,10 +99,10 @@ class HabiTrello(object):
 
 	def arrow_habit(self, habit, direction):
 		self.api.perform_task(habit["id"], direction)
-		print_message("Habit " + habit["text"] + " was " + diretion +"'d!")
+		print_message("Habit " + habit["text"] + " was " + direction + "'d!")
 
 	def process_habit_habits(self):
-		for habit_id,habit in self.habits.items():
+		for habit_id, habit in self.habits.items():
 			if habit_id not in self.habits_dict:
 				labels, checklist_items, checklist_values = self.get_habit_checklist_label(habit)
 				card = self.habits_list.add_card(habit["text"], habit_id, labels)
@@ -114,6 +123,9 @@ class HabiTrello(object):
 		return labels, checklist_items, checklist_values
 
 	def process_trello_todos(self):
+		if self.todos_list is None:
+			print 'No Todos to process.'
+			return
 		# Todos
 		# grab all of the cards
 		self.trello_todos = self.todos_list.list_cards()
@@ -174,7 +186,7 @@ class HabiTrello(object):
 				print_message("Todo " + trello_todo.name + " was finished!")
 
 	def process_habit_todos(self):
-		for todo_id,todo in self.todos.items():
+		for todo_id, todo in self.todos.items():
 			if todo_id not in self.todos_dict and not todo["completed"]:
 				due_date = None
 				if "date" in todo:
@@ -209,7 +221,7 @@ class HabiTrello(object):
 				break
 
 		# if we don't have a Habit RPG borad, then we have to make a new one
-		if not self.board:
+		if self.board is None:
 			self.board = client.add_board(board_name)
 			self.add_labels()
 		# if the board we found was closed, then we open it
@@ -238,7 +250,7 @@ class HabiTrello(object):
 		self.setup_list(self.dailies_list, 'Dailies')
 
 	def setup_list(self, trello_list, name):
-		if not trello_list:
+		if trello_list is None:
 			trello_list = self.board.add_list(name)
 		if trello_list.closed:
 			trello_list.open()
@@ -300,10 +312,10 @@ if not trello_token or not trello_token_secret:
 
 # Create our Trello API client
 client = TrelloClient(
-                      api_key = trello_api_key,
-                      api_secret = trello_api_secret,
-                      token = trello_token,
-                      token_secret = trello_token_secret
+	api_key=trello_api_key,
+	api_secret=trello_api_secret,
+	token=trello_token,
+	token_secret=trello_token_secret
 	)
 
 habit = HabiTrello(api, client)
