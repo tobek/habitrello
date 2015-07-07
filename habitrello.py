@@ -203,7 +203,7 @@ class HabiTrello(object):
 		task["completed"] = True
 		self.api.update_task(task["id"], task)
 
-	def add_labels(self, habitrello_board):
+	def add_labels(self):
 		self.labels["Up"] = self.board.add_label("Up", "green")
 		self.labels["Down"] = self.board.add_label("Down", "red")
 
@@ -309,8 +309,8 @@ api = HabitAPI(habit_uuid, habit_api_key)
 # if we don't have trello tokens, we need to call OAuth.
 if not trello_token or not trello_token_secret:
 	access_token = create_oauth_token(None, None, trello_api_key, trello_api_secret, 'HabiTrello')
-	trello_token = access_token['oauth_token']
-	trello_token_secret = access_token['oauth_token_secret']
+	trello_token = access_token.get('oauth_token', None)
+	trello_token_secret = access_token.get('oauth_token_secret', None)
 
 # Create our Trello API client
 client = TrelloClient(
