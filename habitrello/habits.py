@@ -6,7 +6,6 @@ class Habits(Task):
 	def __init__(self, api):
 		super(Habits, self).__init__(api)
 		self.habits = {}
-		self.list = None
 		self.labels = {}
 
 	def process_trello(self):

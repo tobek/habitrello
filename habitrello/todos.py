@@ -8,7 +8,6 @@ class Todos(Task):
 	def __init__(self, api):
 		super(Todos, self).__init__(api)
 		self.todos = {}
-		self.list = None
 
 	def process_trello(self):
 		print_message("Processing Trello Todos.")

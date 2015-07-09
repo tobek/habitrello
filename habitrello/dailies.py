@@ -8,7 +8,6 @@ class Dailies(Task):
 	def __init__(self, api):
 		super(Dailies, self).__init__(api)
 		self.dailies = {}
-		self.list = None
 
 	def process_trello(self):
 		print_message("Processing Trello Dailies.")

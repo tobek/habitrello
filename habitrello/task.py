@@ -2,6 +2,7 @@ class Task(object):
 	def __init__(self, api):
 		self.api = api
 		self.tasks = {}
+		self.list = None
 
 	def add(self, task):
 		self.tasks[task["id"]] = task
