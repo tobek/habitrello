@@ -11,6 +11,7 @@ class Dailies(Task):
 		self.list = None
 
 	def process_trello(self):
+		print_message("Processing Trello Dailies.")
 		if self.list is None:
 			print_message('No Dailies to process.')
 			return
@@ -35,6 +36,7 @@ class Dailies(Task):
 				self.complete_task(self.dailies[trello_daily.description])
 
 	def process_habit(self):
+		print_message("Processing HabitRPG Dailies.")
 		# then we add in the cards again
 		for daily_id, daily in self.tasks.items():
 			tomorrow = get_tomorrow()

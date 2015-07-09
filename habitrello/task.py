@@ -9,3 +9,13 @@ class Task(object):
 	def complete_task(self, task):
 		task["completed"] = True
 		self.api.update_task(task["id"], task)
+
+	def process_trello(self):
+		pass
+
+	def process_habit(self):
+		pass
+
+	def process(self):
+		self.process_trello()
+		self.process_habit()

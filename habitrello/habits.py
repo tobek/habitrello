@@ -10,6 +10,7 @@ class Habits(Task):
 		self.labels = {}
 
 	def process_trello(self):
+		print_message("Processing Trello Habits.")
 		if self.list is None:
 			print_message('No Habits to process.')
 			return
@@ -44,6 +45,7 @@ class Habits(Task):
 		print_message("Habit " + habit["text"] + " was " + direction + "'d!")
 
 	def process_habit(self):
+		print_message("Processing HabitRPG Habits.")
 		for habit_id, habit in self.tasks.items():
 			if habit_id not in self.habits:
 				labels, checklist_items, checklist_values = self.get_habit_checklist_label(habit)

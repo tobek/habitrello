@@ -11,6 +11,7 @@ class Todos(Task):
 		self.list = None
 
 	def process_trello(self):
+		print_message("Processing Trello Todos.")
 		if self.list is None:
 			print_message('No Todos to process.')
 			return
@@ -72,6 +73,7 @@ class Todos(Task):
 				print_message("Todo " + trello_todo.name + " was finished!")
 
 	def process_habit(self):
+		print_message("Processing HabitRPG Todos.")
 		for todo_id, todo in self.tasks.items():
 			if todo_id not in self.todos and not todo["completed"]:
 				due_date = None

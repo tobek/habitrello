@@ -104,17 +104,8 @@ class HabiTrello(object):
 		self.process_tasks()
 
 		if not skip_dailies:
-			print_message("Processing Trello Dailies.")
-			self.dailies.process_trello()
-			print_message("Processing HabitRPG Dailies.")
-			self.dailies.process_habit()
+			self.dailies.process()
 		if not skip_habits:
-			print_message("Processing Trello Habits.")
-			self.habits.process_trello()
-			print_message("Processing HabitRPG Habits.")
-			self.habits.process_habit()
+			self.habits.process()
 		if not skip_todos:
-			print_message("Processing Trello Todos.")
-			self.todos.process_trello()
-			print_message("Processing HabitRPG Todos.")
-			self.todos.process_habit()
+			self.todos.process()
