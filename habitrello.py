@@ -80,14 +80,17 @@ class HabiTrello(object):
 			trello_habit.fetch(eager=True)
 			self.habits_dict[trello_habit.description] = trello_habit
 			if trello_habit.description in self.habits:
-				for checklist_item in trello_habit.checklists[0].items:
-					if checklist_item["checked"]:
-						if checklist_item["name"] == "Down":
-							self.arrow_habit(self.habits[trello_habit.description], HabitAPI.DIRECTION_DOWN)
-						elif checklist_item["name"] == "Up":
-							self.arrow_habit(self.habits[trello_habit.description], HabitAPI.DIRECTION_UP)
-					else:
-						print_message("Nothing has changed with Habit " + trello_habit.name + "!")
+				try:  # Catch exception if there is no checkllist
+					for checklist_item in trello_habit.checklists[0].items:
+						if checklist_item["checked"]:
+							if checklist_item["name"] == "Down":
+								self.arrow_habit(self.habits[trello_habit.description], HabitAPI.DIRECTION_DOWN)
+							elif checklist_item["name"] == "Up":
+								self.arrow_habit(self.habits[trello_habit.description], HabitAPI.DIRECTION_UP)
+						else:
+							print_message("Nothing has changed with Habit " + trello_habit.name + "!")
+				except AttributeError:
+					continue
 
 			else:
 				(up, down) = get_up_down_for(trello_habit)
@@ -247,15 +250,16 @@ class HabiTrello(object):
 				if close_other_lists:
 					board_list.close()
 		
-		self.setup_list(self.todos_list, todos_list_name)
-		self.setup_list(self.habits_list, habits_list_name)
-		self.setup_list(self.dailies_list, dailies_list_name)
+		self.todos_list = self.setup_list(self.todos_list, todos_list_name)
+		self.habits_list = self.setup_list(self.habits_list, habits_list_name)
+		self.dailies_list = self.setup_list(self.dailies_list, dailies_list_name)
 
 	def setup_list(self, trello_list, name):
 		if trello_list is None:
 			trello_list = self.board.add_list(name)
 		if trello_list.closed:
 			trello_list.open()
+		return trello_list
 
 	def get_labels(self):
 		labels = self.board.get_labels()

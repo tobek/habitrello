@@ -31,7 +31,18 @@ def get_midnight(day):
 
 
 def trello_checked(trello_card):
-	return trello_card.checklists[0].items[0]["checked"]
+	checklist = None
+	try:
+		checklist = trello_card.checklists[0]
+	except (AttributeError, IndexError):
+		return False
+
+	try:
+		item = checklist.items[0]
+	except (AttributeError, IndexError):
+		return False
+
+	return item["checked"]
 
 
 def trello_to_habit_due(trello_card_due):
