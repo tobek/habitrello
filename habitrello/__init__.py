@@ -1,15 +1,22 @@
-import argparse
+'''
+__init__.py
+
+This stores the HabiTrello class that does all of the heavy lifting to
+sync HabitRPG and Trello.
+'''
 from pyhabit import HabitAPI
-from trello import *
-from trello.util import *
-from utils import *
-from keys import habit_uuid, habit_api_key, trello_api_key, trello_api_secret,\
-	trello_token, trello_token_secret, board_name, todos_list_name,\
+from habitrello.utils import get_trello_due, get_habit_due, get_tomorrow, print_message,\
+	get_midnight, trello_checked, trello_to_habit_due, habit_to_trello_due,\
+	get_up_down_for
+from habitrello.keys import board_name, todos_list_name,\
 	dailies_list_name, habits_list_name, close_other_lists
 from datetime import date
 
 
 class HabiTrello(object):
+	'''
+	The HabiTrello client used for syncing HabitRPG and Trello.
+	'''
 	def __init__(self, api, client):
 		self.api = api
 		self.client = client
@@ -18,12 +25,16 @@ class HabiTrello(object):
 		self.habits = {}
 		self.habits_dict = {}
 		self.habits_list = None
+		self.trello_habits = None
 		self.dailies = {}
 		self.dailies_dict = {}
 		self.dailies_list = None
+		self.trello_dailies = None
 		self.todos = {}
 		self.todos_dict = {}
 		self.todos_list = None
+		self.trello_todos = None
+		self.board = None
 
 	def process_trello_dailies(self):
 		if self.dailies_list is None:
@@ -216,8 +227,6 @@ class HabiTrello(object):
 		return None
 
 	def setup_board(self):
-		self.board = None
-
 		# Loop through the user's boards until we find the Habit RPG one
 		for board in self.client.list_boards():
 			if board.name == board_name:
@@ -300,29 +309,3 @@ class HabiTrello(object):
 			self.process_trello_todos()
 			print_message("Processing HabitRPG Todos.")
 			self.process_habit_todos()
-
-parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
-parser.add_argument('--skip-todos', dest='skip_todos', action='store_true', help='Skip processing Todos')
-parser.add_argument('--skip-dailies', dest='skip_dailies', action='store_true', help='Skip processing Dailies')
-parser.add_argument('--skip-habits', dest='skip_habits', action='store_true', help='Skip processing Habits')
-args = parser.parse_args()
-
-# Get the tasks for the user in HabitRPG
-api = HabitAPI(habit_uuid, habit_api_key)
-
-# if we don't have trello tokens, we need to call OAuth.
-if not trello_token or not trello_token_secret:
-	access_token = create_oauth_token(None, None, trello_api_key, trello_api_secret, 'HabiTrello')
-	trello_token = access_token.get('oauth_token', None)
-	trello_token_secret = access_token.get('oauth_token_secret', None)
-
-# Create our Trello API client
-client = TrelloClient(
-	api_key=trello_api_key,
-	api_secret=trello_api_secret,
-	token=trello_token,
-	token_secret=trello_token_secret
-	)
-
-habit = HabiTrello(api, client)
-habit.main(args.skip_todos, args.skip_dailies, args.skip_habits)

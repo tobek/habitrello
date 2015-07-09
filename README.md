@@ -5,8 +5,8 @@ HabiTrello
 Usage
 =====
 ```
-$ python habitrello.py -h
-usage: habitrello.py [-h] [--skip-todos] [--skip-dailies] [--skip-habits]
+$ python run.py -h
+usage: run.py [-h] [--skip-todos] [--skip-dailies] [--skip-habits]
 
 Sync HabitRPG and Trello tasks!
 
@@ -49,11 +49,11 @@ To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://
 
 Next, you need your [Trello api keys](https://trello.com/1/appKey/generate). Place those in the keys.py file, in the corresponding spaces.
 
-Next, if you run python habitrello.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to keys.py in the final two spots.
+Next, if you run python run.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to keys.py in the final two spots.
 
 Then simply run  
 ```
-python habitrello.py
+python run.py
 ```
 
 You can also pass the flags

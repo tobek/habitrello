@@ -59,8 +59,8 @@ def habit_to_trello_due(habit_task_due):
 
 
 def now():
-	ts = time.time()
-	return datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+	timestamp = time.time()
+	return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def print_message(message):
@@ -68,16 +68,18 @@ def print_message(message):
 
 
 def get_up_down_for(trello_habit):
-	up = False
-	down = True
-	for label in trello_habit.labels:
-		if label["name"] == "Up":
-			up = True
-		else:
-			up = False
-		if label["name"] == "Down":
-			down = True
-		else:
-			down = False
-	return (up, down)
-	
+	is_up = False
+	is_down = True
+	try:
+		for label in trello_habit.labels:
+			if label["name"] == "Up":
+				is_up = True
+			else:
+				is_up = False
+			if label["name"] == "Down":
+				is_down = True
+			else:
+				is_down = False
+	except AttributeError:
+		pass
+	return (is_up, is_down)
