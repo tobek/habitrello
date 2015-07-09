@@ -26,9 +26,9 @@ class HabiTrello(object):
 		self.tasks = api.tasks()
 		self.labels = {}
 		self.board = None
-		self.habits = Habits(api, client)
-		self.dailies = Dailies(api, client)
-		self.todos = Todos(api, client)
+		self.habits = Habits(api)
+		self.dailies = Dailies(api)
+		self.todos = Todos(api)
 		self.setup_board()
 		self.setup_lists()
 		self.get_labels()

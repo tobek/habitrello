@@ -1,7 +1,6 @@
 class Task(object):
-	def __init__(self, api, client):
+	def __init__(self, api):
 		self.api = api
-		self.client = client
 		self.tasks = {}
 
 	def add(self, task):

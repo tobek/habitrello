@@ -3,8 +3,8 @@ from habitrello.task import Task
 from habitrello.utils import print_message,	get_up_down_for
 
 class Habits(Task):
-	def __init__(self, api, client):
-		super(Habits, self).__init__(api, client)
+	def __init__(self, api):
+		super(Habits, self).__init__(api)
 		self.habits = {}
 		self.list = None
 		self.labels = {}

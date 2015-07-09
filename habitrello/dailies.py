@@ -5,8 +5,8 @@ from habitrello.utils import get_trello_due, get_tomorrow, print_message,\
 from datetime import date
 
 class Dailies(Task):
-	def __init__(self, api, client):
-		super(Dailies, self).__init__(api, client)
+	def __init__(self, api):
+		super(Dailies, self).__init__(api)
 		self.dailies = {}
 		self.list = None
 
