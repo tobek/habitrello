@@ -53,7 +53,7 @@ def habit_to_trello_due(habit_task_due):
 	if "T" in habit_task_due:
 		habit_task_due = habit_task_due.split("T")[0]
 	if "/" in habit_task_due:
-		return datetime.datetime.strptime(habit_task_due, "%m/%d/%Y").stftime("%Y-%m-%d")
+		return datetime.datetime.strptime(habit_task_due, "%m/%d/%Y").strftime("%Y-%m-%d")
 	else:
 		return habit_task_due
 
@@ -64,22 +64,18 @@ def now():
 
 
 def print_message(message):
-	print now() + " - " + message
+	print "%s - %s" % (now(), message)
 
 
 def get_up_down_for(trello_habit):
 	is_up = False
-	is_down = True
+	is_down = False
 	try:
 		for label in trello_habit.labels:
-			if label["name"] == "Up":
+			if label.name == "Up":
 				is_up = True
-			else:
-				is_up = False
-			if label["name"] == "Down":
+			if label.name == "Down":
 				is_down = True
-			else:
-				is_down = False
 	except AttributeError:
 		pass
 	return (is_up, is_down)
