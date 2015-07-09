@@ -1,4 +1,4 @@
-class Task(object):
+class Tasks(object):
 	def __init__(self, api):
 		self.api = api
 		self.tasks = {}

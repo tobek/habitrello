@@ -1,10 +1,10 @@
 from pyhabit import HabitAPI
-from habitrello.task import Task
+from habitrello.tasks import Tasks
 from habitrello.utils import get_trello_due, get_tomorrow, print_message,\
 	get_midnight, trello_checked
 from datetime import date
 
-class Dailies(Task):
+class Dailies(Tasks):
 	def __init__(self, api):
 		super(Dailies, self).__init__(api)
 		self.dailies = {}

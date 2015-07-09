@@ -1,8 +1,8 @@
 from pyhabit import HabitAPI
-from habitrello.task import Task
+from habitrello.tasks import Tasks
 from habitrello.utils import print_message,	get_up_down_for
 
-class Habits(Task):
+class Habits(Tasks):
 	def __init__(self, api):
 		super(Habits, self).__init__(api)
 		self.habits = {}

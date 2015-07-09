@@ -1,10 +1,10 @@
 from pyhabit import HabitAPI
-from habitrello.task import Task
+from habitrello.tasks import Tasks
 from habitrello.utils import get_trello_due, get_habit_due, print_message,\
 	trello_checked, trello_to_habit_due, habit_to_trello_due
 from datetime import date
 
-class Todos(Task):
+class Todos(Tasks):
 	def __init__(self, api):
 		super(Todos, self).__init__(api)
 		self.todos = {}
@@ -22,10 +22,7 @@ class Todos(Task):
 			# Create a dictionary for looking up between HabitRPG and Trello
 			self.todos[trello_todo.description] = trello_todo
 			# The corresponding HabitRPG Todo, assuming it doesn't exist
-			habit_todo = None
-			# If it does exist already, we grab it
-			if trello_todo.description in self.tasks.keys():
-				habit_todo = self.tasks[trello_todo.description]
+			habit_todo = self.tasks.get(trello_todo.description, None)
 			# Get the due date for the Trello card
 			trello_todo_due = get_trello_due(trello_todo)
 			# If the due date has passed, the task is overdue!
