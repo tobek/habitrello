@@ -40,16 +40,21 @@ Currently Working:
 Instructions
 ============
 
+First off, you need Python installed. You will also need py-trello and pyhabit to be installed.  
+You can find those repositories on GitHub as well as in Pip.
+
 To make sure all of the requirements are satisfied, run  
 ```
     sudo pip install -r requirements.txt
 ```
 
-To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://habitrpg.com/#/options/settings/api). Place them in the corresponding variables in keys.py.
+or your OS equivalent.
 
-Next, you need your [Trello api keys](https://trello.com/1/appKey/generate). Place those in the keys.py file, in the corresponding spaces.
+To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://habitrpg.com/#/options/settings/api). Place them in the corresponding variables in habitrello/keys.py.
 
-Next, if you run python run.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to keys.py in the final two spots.
+Next, you need your [Trello api keys](https://trello.com/1/appKey/generate). Place those in the habitrello/keys.py file, in the corresponding spaces.
+
+Next, if you run python run.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to habitrello/keys.py in the final two spots.
 
 Then simply run  
 ```
