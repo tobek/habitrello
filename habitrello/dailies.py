@@ -32,7 +32,7 @@ class Dailies(Tasks):
 			# If the checklist item 'Complete' has been checked, the item is done!
 			if trello_checked(trello_daily):
 				print_message("Daily " + trello_daily.name + " was completed!")
-				self.complete_task(self.dailies[trello_daily.description])
+				self.complete_task(self.tasks[trello_daily.description])
 
 	def process_habit(self):
 		print_message("Processing HabitRPG Dailies.")
