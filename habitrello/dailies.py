@@ -43,7 +43,7 @@ class Dailies(Tasks):
 			if daily_id not in self.dailies:
 
 				card = self.list.add_card(daily["text"], daily_id, due=str(midnight))
-				daily_checked = daily["completed"]
+				daily_checked = daily.get("completed", False)
 				card.add_checklist("Complete", ["Complete"], [daily_checked])
 
 				print_message("Daily " + daily["text"] + " was created in HabitRPG!")
