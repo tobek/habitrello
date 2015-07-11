@@ -1,10 +1,10 @@
 from pyhabit import HabitAPI
 from habitrello.tasks import Tasks
-from habitrello.utils import print_message,	get_up_down_for
+from habitrello.utils import print_message, get_up_down_for
 
 class Habits(Tasks):
-	def __init__(self, api):
-		super(Habits, self).__init__(api)
+	def __init__(self, api, skip):
+		super(Habits, self).__init__(api, skip)
 		self.habits = {}
 		self.labels = {}
 
@@ -37,7 +37,7 @@ class Habits(Tasks):
 				self.habits[new_habit["id"]] = new_habit
 				self.tasks[new_habit["id"]] = new_habit
 				trello_habit.set_description(new_habit["id"])
-		print_message("Done!")
+		print_message("Trello Habits Done!")
 
 	def arrow_habit(self, habit, direction):
 		self.api.perform_task(habit["id"], direction)
@@ -52,7 +52,7 @@ class Habits(Tasks):
 				card.add_checklist("Up/Down", checklist_items, checklist_values)
 				print_message("Habit " + habit["text"] + " was created in HabitRPG!")
 				self.habits[habit_id] = card
-		print_message("Done!")
+		print_message("HabitRPG Habits Done!")
 
 	def get_label_for(self, label):
 		return self.labels.get(label, None)

@@ -1,8 +1,9 @@
 class Tasks(object):
-	def __init__(self, api):
+	def __init__(self, api, skip=False):
 		self.api = api
 		self.tasks = {}
 		self.list = None
+		self.skip = skip
 
 	def add(self, task):
 		self.tasks[task["id"]] = task
@@ -18,5 +19,7 @@ class Tasks(object):
 		pass
 
 	def process(self):
+		if self.skip:
+			return
 		self.process_trello()
 		self.process_habit()

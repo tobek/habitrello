@@ -8,27 +8,28 @@ from pyhabit import HabitAPI
 from habitrello.utils import get_trello_due, get_habit_due, get_tomorrow, print_message,\
 	get_midnight, trello_checked, trello_to_habit_due, habit_to_trello_due,\
 	get_up_down_for
-from habitrello.keys import board_name, todos_list_name,\
+from habitrello.settings import board_name, todos_list_name,\
 	dailies_list_name, habits_list_name, close_other_lists
 from datetime import date
 from habitrello.habits import Habits
 from habitrello.todos import Todos
 from habitrello.dailies import Dailies
+from multiprocessing import Process
 
 
 class HabiTrello(object):
 	'''
 	The HabiTrello client used for syncing HabitRPG and Trello.
 	'''
-	def __init__(self, api, client):
+	def __init__(self, api, client, args):
 		self.api = api
 		self.client = client
 		self.tasks = api.tasks()
 		self.labels = {}
 		self.board = None
-		self.habits = Habits(api)
-		self.dailies = Dailies(api)
-		self.todos = Todos(api)
+		self.habits = Habits(api, args.skip_habits)
+		self.dailies = Dailies(api, args.skip_dailies)
+		self.todos = Todos(api, args.skip_todos)
 		self.setup_board()
 		self.setup_lists()
 		self.get_labels()
@@ -70,7 +71,7 @@ class HabiTrello(object):
 			else:
 				if close_other_lists:
 					board_list.close()
-		
+
 		self.todos.list = self.setup_list(self.todos.list, todos_list_name)
 		self.habits.list = self.setup_list(self.habits.list, habits_list_name)
 		self.dailies.list = self.setup_list(self.dailies.list, dailies_list_name)
@@ -103,9 +104,13 @@ class HabiTrello(object):
 			return
 		self.process_tasks()
 
-		if not skip_dailies:
-			self.dailies.process()
-		if not skip_habits:
-			self.habits.process()
-		if not skip_todos:
-			self.todos.process()
+		dailies_proc = Process(target=self.dailies.process)
+		dailies_proc.start()
+		habits_proc = Process(target=self.habits.process)
+		habits_proc.start()
+		todos_proc = Process(target=self.todos.process)
+		todos_proc.start()
+
+		dailies_proc.join()
+		habits_proc.join()
+		todos_proc.join()

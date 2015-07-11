@@ -5,8 +5,8 @@ from habitrello.utils import get_trello_due, get_tomorrow, print_message,\
 from datetime import date
 
 class Dailies(Tasks):
-	def __init__(self, api):
-		super(Dailies, self).__init__(api)
+	def __init__(self, api, skip):
+		super(Dailies, self).__init__(api, skip)
 		self.dailies = {}
 
 	def process_trello(self):
@@ -33,6 +33,7 @@ class Dailies(Tasks):
 			if trello_checked(trello_daily):
 				print_message("Daily " + trello_daily.name + " was completed!")
 				self.complete_task(self.tasks[trello_daily.description])
+				print_message("Trello Dailies Done!")
 
 	def process_habit(self):
 		print_message("Processing HabitRPG Dailies.")
@@ -54,3 +55,4 @@ class Dailies(Tasks):
 			if daily_due <= date.today():
 				trello_daily.set_due(midnight)
 				trello_daily.checklists[0].set_checklist_item("Complete", False)
+                print_message("HabitRPG Dailies Done!")

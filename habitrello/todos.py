@@ -5,8 +5,8 @@ from habitrello.utils import get_trello_due, get_habit_due, print_message,\
 from datetime import date
 
 class Todos(Tasks):
-	def __init__(self, api):
-		super(Todos, self).__init__(api)
+	def __init__(self, api, skip):
+		super(Todos, self).__init__(api, skip)
 		self.todos = {}
 
 	def process_trello(self):
@@ -53,7 +53,7 @@ class Todos(Tasks):
 				if habit_todo_due != trello_todo_due:
 					habit_todo["date"] = trello_to_habit_due(trello_todo.due)
 					self.api.update_task(habit_todo["id"], habit_todo)
-		print_message("Done!")
+		print_message("Trello Todos Done!")
 
 	def check_completed(self, habit_todo, trello_todo):
 		# First we check to see if the task was completed in Trello
@@ -80,4 +80,4 @@ class Todos(Tasks):
 				card.add_checklist("Complete", ["Completed"], [todo_checked])
 				print_message("Todo " + todo["text"] + " was created from HabitRPG!")
 				self.todos[todo_id] = card
-		print_message("Done!")
+		print_message("HabitRPG Habits Done!")
