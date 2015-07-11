@@ -7,14 +7,16 @@ Usage
 ```
 $ python run.py -h
 usage: run.py [-h] [--skip-todos] [--skip-dailies] [--skip-habits]
+              [--key-file KEY_FILE]
 
 Sync HabitRPG and Trello tasks!
 
 optional arguments:
-  -h, --help      show this help message and exit
-  --skip-todos    Skip processing Todos
-  --skip-dailies  Skip processing Dailies
-  --skip-habits   Skip processing Habits
+    -h, --help           show this help message and exit
+    --skip-todos         Skip processing Todos
+    --skip-dailies       Skip processing Dailies
+    --skip-habits        Skip processing Habits
+    --key-file KEY_FILE  File to store the API keys and tokens
 ```
 
 Description
@@ -50,15 +52,23 @@ To make sure all of the requirements are satisfied, run
 
 or your OS equivalent.
 
-To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://habitrpg.com/#/options/settings/api). Place them in the corresponding variables in habitrello/keys.py.
+The first time you run the program, it'll tell you that you need to provide Trello and HabitRPG keys, as well as creating a default JSON file which will hold the keys. Using the instructions below, input the proper Key into the related field in the key file.
 
-Next, you need your [Trello api keys](https://trello.com/1/appKey/generate). Place those in the habitrello/keys.py file, in the corresponding spaces.
+If you would like to use a specific key file, use the following flag:
+```
+    python run.py --key-file /path/to/keys.json
+```
+the script will automatically create the file at the specified location with the appropriate fields that need to be filled in.
 
-Next, if you run python run.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out. You must then copy these and paste them in to habitrello/keys.py in the final two spots.
+To use HabiTrello, first you need your API key and UUID from [HabitRPG](https://habitrpg.com/#/options/settings/api). 
+
+Next, you need your [Trello api keys](https://trello.com/1/appKey/generate).
+
+Next, if you run python run.py, it will prompt you to walkthrough the steps to generate the OAuth tokens for Trello. After these are generated, they're printed out.
 
 Then simply run  
 ```
-python run.py
+    python run.py
 ```
 
 You can also pass the flags
