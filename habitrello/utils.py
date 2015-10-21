@@ -4,7 +4,7 @@ import time
 
 def get_trello_due(trello_card):
 	if hasattr(trello_card, "due"):
-		return datetime.datetime.strptime(trello_card.due, "%Y-%m-%d").date()
+		return datetime.datetime.strptime(trello_card.due.split("T")[0], "%Y-%m-%d").date()
 	else:
 		trello_card.due = datetime.date.today().strftime("%Y-%m-%d")
 		return datetime.date.today()
@@ -46,7 +46,7 @@ def trello_checked(trello_card):
 
 
 def trello_to_habit_due(trello_card_due):
-	return datetime.datetime.strptime(trello_card_due, "%Y-%m-%d").strftime("%m/%d/%Y")
+	return datetime.datetime.strptime(trello_card_due.split("T")[0], "%Y-%m-%d").strftime("%m/%d/%Y")
 
 
 def habit_to_trello_due(habit_task_due):
