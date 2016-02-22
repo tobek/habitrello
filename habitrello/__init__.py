@@ -72,9 +72,12 @@ class HabiTrello(object):
 				if close_other_lists:
 					board_list.close()
 		
-		self.todos.list = self.setup_list(self.todos.list, todos_list_name)
-		self.habits.list = self.setup_list(self.habits.list, habits_list_name)
-		self.dailies.list = self.setup_list(self.dailies.list, dailies_list_name)
+		if not self.config.skip_todos:
+			self.todos.list = self.setup_list(self.todos.list, todos_list_name)
+		if not self.config.skip_habits:
+			self.habits.list = self.setup_list(self.habits.list, habits_list_name)
+		if not self.config.skip_dailies:
+			self.dailies.list = self.setup_list(self.dailies.list, dailies_list_name)
 
 	def setup_list(self, trello_list, name):
 		if trello_list is None:
