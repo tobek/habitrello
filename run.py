@@ -11,11 +11,11 @@ from habitrello.keys import habit_uuid, habit_api_key, trello_api_key,\
 def get_args():
 	parser = argparse.ArgumentParser(description='Sync HabitRPG and Trello tasks!')
 	parser.add_argument('--skip-todos', dest='skip_todos', action='store_true',
-						help='Skip processing Todos')
+						help='Skip processing Todos', default=False)
 	parser.add_argument('--skip-dailies', dest='skip_dailies', action='store_true',
-						help='Skip processing Dailies')
+						help='Skip processing Dailies', default=False)
 	parser.add_argument('--skip-habits', dest='skip_habits', action='store_true',
-						help='Skip processing Habits')
+						help='Skip processing Habits', default=False)
 	return parser.parse_args()
 
 
@@ -47,7 +47,7 @@ def main():
 
 	client = setup_trello()
 
-	HabiTrello(api, client).main(args.skip_todos, args.skip_dailies, args.skip_habits)
+	HabiTrello(api, client, args).main()
 
 if __name__ == "__main__":
 	main()

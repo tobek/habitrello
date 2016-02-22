@@ -20,9 +20,10 @@ class HabiTrello(object):
 	'''
 	The HabiTrello client used for syncing HabitRPG and Trello.
 	'''
-	def __init__(self, api, client):
+	def __init__(self, api, client, config):
 		self.api = api
 		self.client = client
+		self.config = config
 		self.tasks = api.tasks()
 		self.labels = {}
 		self.board = None
@@ -103,9 +104,9 @@ class HabiTrello(object):
 			return
 		self.process_tasks()
 
-		if not skip_dailies:
+		if not self.config.skip_dailies:
 			self.dailies.process()
-		if not skip_habits:
+		if not self.config.skip_habits:
 			self.habits.process()
-		if not skip_todos:
+		if not self.config.skip_todos:
 			self.todos.process()
