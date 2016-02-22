@@ -31,14 +31,21 @@ def get_midnight(day):
 
 
 def trello_checked(trello_card):
-	checklist = None
+	HABIT_CHECKLIST_NAME = 'Complete' # Should maybe be different and/or in some config
+
+	habit_checklist = None
 	try:
-		checklist = trello_card.checklists[0]
+		for checklist in trello_card.checklists:
+			if checklist.name == HABIT_CHECKLIST_NAME:
+				habit_checklist = checklist
 	except (AttributeError, IndexError):
 		return False
 
+	if not habit_checklist:
+		return False
+
 	try:
-		item = checklist.items[0]
+		item = habit_checklist.items[0]
 	except (AttributeError, IndexError):
 		return False
 
